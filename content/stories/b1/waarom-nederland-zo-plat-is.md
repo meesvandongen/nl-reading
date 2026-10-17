@@ -23,7 +23,7 @@ names:
   - Nederland|the Netherlands
   - Rijn|the Rhine (river)
   - Maas|the Meuse (river)
-  - Vaalserberg|Vaalserberg (hill in Limburg, the highest point of the Netherlands)
+  - Vaalserberg|Vaalserberg (hill in Limburg, the highest point in the European part of the Netherlands)
   - Limburg|Limburg (province in the south of the Netherlands)
   - Beemster|Beemster (polder north of Amsterdam)
   - Amsterdam|Amsterdam
@@ -57,7 +57,7 @@ Jeroen lachte.
 "Dat is precies de vraag waar ik elke dag aan werk," zei hij.
 > "That's exactly the question I work on every day," he said.
 Jeroen werkte bij het waterschap, de organisatie die ervoor zorgt dat Nederland droog blijft.
-> Jeroen worked at the waterschap, the organisation that makes sure the Netherlands stays dry.
+> Jeroen worked at the water board, the organisation that makes sure the Netherlands stays dry.
 "Ongeveer een kwart van Nederland ligt onder de zeespiegel," vertelde hij.
 > "About a quarter of the Netherlands lies below sea level," he explained.
 "Deze polder ook."
@@ -71,14 +71,14 @@ Jeroen werkte bij het waterschap, de organisatie die ervoor zorgt dat Nederland 
 > "But why is the land so low?" Noor asked.
 "En waarom is alles zo plat?"
 > "And why is everything so flat?"
-"Dat heeft eerst met rivieren te maken," zei Jeroen.
-> "First of all, that has to do with rivers," said Jeroen.
+"Dat heeft om te beginnen met rivieren te maken," zei Jeroen.
+> "To begin with, that has to do with rivers," said Jeroen.
 "Grote rivieren zoals de Rijn en de Maas hebben duizenden jaren lang zand en klei naar de zee gebracht."
 > "Big rivers like the Rhine and the Meuse carried sand and clay to the sea for thousands of years."
 "Zo is een groot, vlak land ontstaan, zonder bergen."
 > "That's how a big, flat country came into being, without mountains."
-"Het hoogste punt, de Vaalserberg in Limburg, is maar 322 meter hoog."
-> "The highest point, the Vaalserberg in Limburg, is only 322 metres high."
+"Het hoogste punt in het Europese deel van Nederland, de Vaalserberg in Limburg, is maar 322 meter hoog."
+> "The highest point in the European part of the Netherlands, the Vaalserberg in Limburg, is only 322 metres high."
 
 "Achter de duinen lag vroeger heel veel veen."
 > "Behind the dunes there used to be a great deal of peat."
@@ -98,7 +98,7 @@ Jeroen werkte bij het waterschap, de organisatie die ervoor zorgt dat Nederland 
 "Het land werd dus steeds lager, eeuw na eeuw."
 > "So the land got lower and lower, century after century."
 "Bovendien groeven mensen veen af om het als turf in de kachel te branden."
-> "On top of that, people dug up peat to burn as turf in the stove."
+> "On top of that, people dug away peat to burn as fuel in the stove."
 "Op die plekken ontstonden grote meren."
 > "Large lakes formed in those places."
 

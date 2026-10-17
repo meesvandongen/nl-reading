@@ -22,6 +22,8 @@ names:
   - Bakker|Bakker (family name)
   - Utrecht|Utrecht (city in the Netherlands)
   - Sanne|Sanne (given name)
+glosses:
+  - mmm|mmm (yum)
 ---
 
 James komt uit Engeland.

@@ -1,17 +1,9 @@
-import { headword, type Entry, type RawReading, readings } from '../lib/dict'
-import { toHiragana } from '../lib/kana'
+import { glossList, type Entry } from '../lib/dict'
 import { cards, deleteCard, logActivity, putCard, type Card } from '../state/db'
 import { newCard } from './srs'
 
-export function cardId(word: string, reading: string) {
-  return `${word}|${toHiragana(reading)}`
-}
-
-export function shortMeaning(e: Entry, max = 3): string {
-  return e.s
-    .slice(0, max)
-    .map((s) => s.g.slice(0, 3).join(', '))
-    .join('; ')
+export function cardId(word: string) {
+  return word.trim().toLowerCase()
 }
 
 export interface CardContext {
@@ -21,54 +13,59 @@ export interface CardContext {
   storyId?: string
 }
 
-/** Headword to store for an entry, given the reading seen in the text. */
-export function cardHead(e: Entry, reading?: RawReading): { word: string; reading: string; accent?: string } {
-  const hw = headword(e)
-  const r = reading ?? readings(e)[0]
-  if (e.uk) return { word: r.t, reading: r.t, accent: r.a }
-  return { word: hw.word, reading: r.t, accent: r.a }
+/** Principal parts worth seeing on a card: "liep – gelopen (zijn)", "huizen", "belde op – opgebeld". */
+export function entryForms(e: Entry): string | undefined {
+  if (e.v && (e.v.k || e.v.sep)) {
+    const parts = [e.v.pt, e.v.pp].filter(Boolean).join(' – ')
+    return parts ? `${parts}${e.v.aux ? ` (${e.v.aux})` : ''}` : undefined
+  }
+  if (e.p === 'n' && e.pl?.length) return `plural ${e.pl[0]}`
+  return undefined
 }
 
-export function isSaved(word: string, reading: string) {
-  return cards.value.has(cardId(word, reading))
+export function isSaved(word: string) {
+  return cards.value.has(cardId(word))
 }
 
-export async function saveEntry(e: Entry, reading: RawReading | undefined, ctx: CardContext = {}) {
-  const head = cardHead(e, reading)
-  const id = cardId(head.word, head.reading)
+export async function saveEntry(e: Entry, ctx: CardContext = {}) {
+  const id = cardId(e.w)
   if (cards.value.has(id)) return cards.value.get(id)!
+  const forms = entryForms(e)
   const card = newCard({
     id,
-    word: head.word,
-    reading: head.reading,
-    meaning: shortMeaning(e),
+    word: e.w,
+    meaning: glossList(e, 3),
     entryId: e.i,
-    ...(e.j ? { jlpt: e.j } : {}),
-    ...(head.accent ? { accent: head.accent } : {}),
+    ...(e.p === 'n' && e.g ? { article: e.g } : {}),
+    ...(e.l ? { level: e.l } : {}),
+    ...(e.a ? { audio: e.a } : {}),
+    ...(forms ? { forms } : {}),
     ...ctx,
   })
   await putCard(card)
   return card
 }
 
-export async function toggleSaved(e: Entry, reading: RawReading | undefined, ctx: CardContext = {}): Promise<boolean> {
-  const head = cardHead(e, reading)
-  const id = cardId(head.word, head.reading)
+export async function toggleSaved(e: Entry, ctx: CardContext = {}): Promise<boolean> {
+  const id = cardId(e.w)
   if (cards.value.has(id)) {
     await deleteCard(id)
     return false
   }
-  await saveEntry(e, reading, ctx)
+  await saveEntry(e, ctx)
   return true
 }
 
-export async function saveKeyword(word: string, reading: string, meaning: string, jlpt?: number, storyId?: string) {
-  const id = cardId(word, reading || word)
+/** Save a keyword from a story's list ("de fiets|bicycle"). */
+export async function toggleKeyword(word: string, meaning: string, level?: number, storyId?: string) {
+  const m = /^(de|het|de\/het)\s+(.+)$/i.exec(word.trim())
+  const bare = m ? m[2] : word.trim()
+  const id = cardId(bare)
   if (cards.value.has(id)) {
     await deleteCard(id)
     return
   }
-  await putCard(newCard({ id, word, reading: reading || word, meaning, ...(jlpt ? { jlpt } : {}), ...(storyId ? { storyId } : {}) }))
+  await putCard(newCard({ id, word: bare, meaning, ...(m ? { article: m[1].toLowerCase() } : {}), ...(level ? { level } : {}), ...(storyId ? { storyId } : {}) }))
 }
 
 export async function recordReview(card: Card) {
@@ -80,7 +77,7 @@ export async function recordReview(card: Card) {
 export function exportCardsTsv(list: Card[]): string {
   const esc = (s = '') => s.replace(/[\t\n]/g, ' ')
   const rows = list.map((c) =>
-    [c.word, c.reading, c.meaning, c.sentence ?? '', c.sentenceEn ?? '', c.jlpt ? `N${c.jlpt}` : ''].map(esc).join('\t'),
+    [c.article ? `${c.article} ${c.word}` : c.word, c.meaning, c.forms ?? '', c.sentence ?? '', c.sentenceEn ?? ''].map(esc).join('\t'),
   )
-  return ['#separator:tab', '#html:false', '#columns:Word\tReading\tMeaning\tSentence\tTranslation\tJLPT', ...rows].join('\n')
+  return ['#separator:tab', '#html:false', '#columns:Word\tMeaning\tForms\tSentence\tTranslation', ...rows].join('\n')
 }

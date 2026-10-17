@@ -78,8 +78,8 @@ Karim zucht.
 > Karim sighs.
 Hij heeft een uur gewacht voor paracetamol.
 > He waited an hour for paracetamol.
-Als hij zijn jas aantrekt, hoort hij een harde nies.
-> As he puts on his coat, he hears a loud sneeze.
+Als hij zijn jas aantrekt, hoort hij iemand hard niezen.
+> As he puts on his coat, he hears someone sneeze loudly.
 "Hatsjoe!"
 > "Achoo!"
 De dokter pakt snel een zakdoekje.

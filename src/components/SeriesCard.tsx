@@ -38,16 +38,16 @@ export function SeriesCard({ series, compact = false }: { series: SeriesMeta; co
           {info.short}
         </span>
         <span class="series-tag">
-          <span lang="ja">連載</span> Series · {total} episodes
+          Series · {total} episodes
         </span>
         {isNew && <span class="badge new">{started ? 'NEW EP' : 'NEW'}</span>}
       </div>
-      <h3 lang="ja">{series.title}</h3>
+      <h3 lang="nl">{series.title}</h3>
       {series.title_en && <div class="story-card-en">{series.title_en}</div>}
       {!compact && series.summary && <p class="story-card-summary">{series.summary}</p>}
       <div class="story-card-foot small muted">
         <EpisodeTrack series={series} />
-        <span>{done === total ? 'Finished' : done ? `${done}/${total} read` : `${series.chars.toLocaleString()} 字`}</span>
+        <span>{done === total ? 'Finished' : done ? `${done}/${total} read` : `${series.words.toLocaleString()} words`}</span>
       </div>
     </article>
   )

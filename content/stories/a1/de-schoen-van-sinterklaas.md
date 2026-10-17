@@ -18,6 +18,11 @@ keywords:
 names:
   - Sinterklaas|Sinterklaas (Saint Nicholas)
   - Ruben|Ruben (given name)
+glosses:
+  - R|the letter R
+  - wortel|carrot
+  - wortels|carrots
+  - chocoladeletter|chocolate letter (a Sinterklaas treat)
 ---
 
 Het is november.
@@ -50,7 +55,7 @@ Dan komt papa de kamer in.
 > Then Dad comes into the room.
 "Goedemorgen!" zegt hij.
 > "Good morning!" he says.
-Bij zijn mond zitten kleine oranje stukjes.
+Om zijn mond zitten kleine oranje stukjes.
 > There are little orange bits around his mouth.
 "Papa, wat is dat?" vraagt Ruben.
 > "Dad, what's that?" Ruben asks.

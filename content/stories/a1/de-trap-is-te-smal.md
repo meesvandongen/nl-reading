@@ -20,6 +20,9 @@ names:
   - Visser|Visser (family name)
   - Amsterdam|Amsterdam (capital of the Netherlands)
   - Tim|Tim (given name)
+glosses:
+  - bank|sofa, couch
+  - verdieping|floor, storey
 ---
 
 De familie Visser verhuist naar Amsterdam.

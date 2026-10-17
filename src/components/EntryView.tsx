@@ -1,246 +1,233 @@
-import { useEffect, useState } from 'preact/hooks'
 import { cards } from '../state/db'
-import { kanjiForms, readings, type Entry, type KanjiInfo, type RawReading } from '../lib/dict'
-import { alignFurigana } from '../lib/furigana'
-import { KANJI_RE, toRomaji } from '../lib/kana'
-import { dictionary } from '../services/dictionary'
-import { cardHead, cardId, toggleSaved, type CardContext } from '../services/cards'
+import type { Entry } from '../lib/dict'
+import { cardId, toggleSaved, type CardContext } from '../services/cards'
 import { speak } from '../services/tts'
 import { navigate } from '../router'
 import { Icon } from './Icon'
-import { JlptBadge, Ruby } from './Badges'
-import { PitchDiagram } from './PitchAccent'
-import { StrokeOrder } from './StrokeOrder'
+import { Article, CefrBadge } from './Badges'
 
-let tagDesc: Record<string, string> = {}
-dictionary
-  .tagDescriptions()
-  .then((t) => (tagDesc = t))
-  .catch(() => {})
+export const POS_LABELS: Record<string, string> = {
+  n: 'noun',
+  v: 'verb',
+  adj: 'adjective',
+  adv: 'adverb',
+  pron: 'pronoun',
+  prep: 'preposition',
+  conj: 'conjunction',
+  det: 'determiner',
+  art: 'article',
+  num: 'number',
+  intj: 'interjection',
+  name: 'proper noun',
+  phrase: 'expression',
+  contr: 'contraction',
+  prefix: 'prefix',
+  suffix: 'suffix',
+  part: 'particle',
+}
 
-function TagList({ tags, class: cls = '' }: { tags?: string[]; class?: string }) {
+const TAG_LABELS: Record<string, string> = {
+  Netherlands: 'NL',
+  Belgium: 'BE',
+  Flanders: 'Flemish',
+  Suriname: 'Surinamese',
+  figuratively: 'figurative',
+  'plural-only': 'plural only',
+}
+
+function Tags({ tags }: { tags?: string[] }) {
   if (!tags?.length) return null
   return (
-    <span class={`tags ${cls}`}>
+    <span class="tags">
       {tags.map((t) => (
-        <span class="tag" title={tagDesc[t] ?? t}>
-          {shortTag(t)}
-        </span>
+        <span class="tag">{TAG_LABELS[t] ?? t}</span>
       ))}
     </span>
   )
 }
 
-const TAG_SHORT: Record<string, string> = {
-  n: 'noun',
-  'adj-i': 'i-adj',
-  'adj-na': 'na-adj',
-  'adj-no': 'の-adj',
-  'adj-pn': 'pre-noun adj',
-  'adj-t': 'たる-adj',
-  'adj-f': 'pre-noun',
-  adv: 'adverb',
-  'adv-to': 'adverb (と)',
-  aux: 'auxiliary',
-  'aux-v': 'aux verb',
-  'aux-adj': 'aux adj',
-  conj: 'conjunction',
-  cop: 'copula',
-  ctr: 'counter',
-  exp: 'expression',
-  int: 'interjection',
-  pn: 'pronoun',
-  pref: 'prefix',
-  prt: 'particle',
-  suf: 'suffix',
-  v1: 'ichidan verb',
-  'v1-s': 'ichidan verb',
-  v5u: 'godan verb',
-  v5k: 'godan verb',
-  'v5k-s': 'godan verb',
-  v5g: 'godan verb',
-  v5s: 'godan verb',
-  v5t: 'godan verb',
-  v5n: 'godan verb',
-  v5b: 'godan verb',
-  v5m: 'godan verb',
-  v5r: 'godan verb',
-  'v5r-i': 'godan verb (irr.)',
-  'v5aru': 'godan verb (-aru)',
-  'v5u-s': 'godan verb',
-  vk: 'kuru verb',
-  vs: 'する verb',
-  'vs-i': 'する verb',
-  'vs-s': 'する verb',
-  vz: 'ずる verb',
-  vi: 'intransitive',
-  vt: 'transitive',
-  uk: 'usually kana',
-  col: 'colloquial',
-  hon: 'honorific',
-  hum: 'humble',
-  pol: 'polite',
-  sl: 'slang',
-  arch: 'archaic',
-  obs: 'obsolete',
-  rare: 'rare',
-  abbr: 'abbreviation',
-  on: 'onomatopoeia',
-  id: 'idiom',
-  yoji: '四字熟語',
-  sens: 'sensitive',
-  vulg: 'vulgar',
-  derog: 'derogatory',
-  fam: 'familiar',
-  male: 'male speech',
-  fem: 'female speech',
-  joc: 'jocular',
-  poet: 'poetic',
-  form: 'formal',
-  chn: "children's",
-  num: 'numeric',
-  unc: 'unclassified',
-}
-function shortTag(t: string) {
-  return TAG_SHORT[t] ?? t
-}
-
-export function KanjiPanel({ chars }: { chars: string[] }) {
-  const [infos, setInfos] = useState<(KanjiInfo | undefined)[]>([])
-  const [open, setOpen] = useState<string | null>(null)
-  useEffect(() => {
-    Promise.all(chars.map((c) => dictionary.kanji(c).catch(() => undefined))).then(setInfos)
-    setOpen(null)
-  }, [chars.join('')])
-  if (!chars.length) return null
+function Speak({ text, recording, size = 18 }: { text: string; recording?: string; size?: number }) {
   return (
-    <div class="kanji-panel">
-      <div class="kanji-chips">
-        {chars.map((c, i) => (
-          <button class={`kanji-chip ${open === c ? 'on' : ''}`} onClick={() => setOpen(open === c ? null : c)}>
-            <span class="kanji-chip-char">{c}</span>
-            <span class="kanji-chip-meaning">{infos[i]?.m.slice(0, 2).join(', ') ?? ''}</span>
-          </button>
-        ))}
-      </div>
-      {open && <KanjiCard char={open} info={infos[chars.indexOf(open)]} />}
-    </div>
+    <button
+      class="icon-btn small"
+      aria-label={`Listen: ${text}`}
+      onClick={(e) => {
+        e.stopPropagation()
+        speak(text, { recording })
+      }}
+    >
+      <Icon name="volume" size={size} />
+    </button>
   )
 }
 
-export function KanjiCard({ char, info }: { char: string; info?: KanjiInfo }) {
+/** Principal parts of a verb: infinitive, past tense, participle (+ zijn), separable prefix. */
+function VerbForms({ e }: { e: Entry }) {
+  const v = e.v
+  if (!v || (!v.pt && !v.pp)) return null
   return (
-    <div class="kanji-card">
-      <StrokeOrder char={char} size={130} />
-      <div class="kanji-card-info">
-        {info ? (
-          <>
-            <div class="kanji-meaning">{info.m.join(', ')}</div>
-            {info.on.length > 0 && (
-              <div>
-                <span class="label">On</span> {info.on.join('、')}
-              </div>
-            )}
-            {info.kun.length > 0 && (
-              <div>
-                <span class="label">Kun</span> {info.kun.join('、')}
-              </div>
-            )}
-            <div class="muted small">
-              {info.s} strokes{info.g ? ` · grade ${info.g <= 6 ? info.g : 'secondary'}` : ''}
-              {info.j ? ` · JLPT N${info.j === 4 ? 5 : info.j === 3 ? 4 : info.j === 2 ? '3/2' : 1}` : ''}
-              {info.f ? ` · #${info.f} most used` : ''}
-            </div>
-            <button class="link small" onClick={() => navigate(`/kanji/${encodeURIComponent(char)}`)}>
-              Open kanji page →
-            </button>
-          </>
-        ) : (
-          <div class="muted">No kanji data.</div>
+    <div class="verb-forms">
+      <table>
+        <thead>
+          <tr>
+            <th>infinitive</th>
+            <th>past</th>
+            <th>participle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{e.w}</td>
+            <td>
+              {v.pt}
+              {v.ptp && v.ptp !== v.pt && <span class="muted"> / {v.ptp}</span>}
+            </td>
+            <td>
+              {v.aux === 'zijn' ? 'is ' : v.aux ? 'heeft/is ' : 'heeft '}
+              {v.pp}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="verb-notes small">
+        {v.k && (
+          <button class="chip small" onClick={() => navigate('/grammar/strong-verbs')}>
+            {v.k === 'strong' ? 'strong verb' : 'irregular verb'}
+          </button>
+        )}
+        {v.sep && (
+          <button class="chip small" onClick={() => navigate('/grammar/separable-verbs')}>
+            separable: {splitExample(e.w, v.sep)}
+          </button>
+        )}
+        {e.rf && (
+          <button class="chip small" onClick={() => navigate('/grammar/reflexive-verbs')}>
+            reflexive: zich {e.w}
+          </button>
+        )}
+        {v.aux && (
+          <button class="chip small" onClick={() => navigate('/grammar/perfect-tense')}>
+            perfect with {v.aux}
+          </button>
         )}
       </div>
     </div>
   )
 }
 
-/** Full view of one dictionary entry. */
-export function EntryView({
-  entry,
-  reading,
-  ctx,
-  compact = false,
-}: {
-  entry: Entry
-  reading?: RawReading
-  ctx?: CardContext
-  compact?: boolean
-}) {
-  const rs = readings(entry)
-  const ks = kanjiForms(entry)
-  const r = reading ?? rs[0]
-  const head = cardHead(entry, r)
-  const saved = cards.value.has(cardId(head.word, head.reading))
-  const showWord = entry.uk ? r.t : head.word
-  const kanjiChars = Array.from(new Set(Array.from(showWord).filter((c) => KANJI_RE.test(c))))
-  const otherForms = ks.filter((k) => k.t !== showWord && !k.tags.includes('sK'))
-  const otherReadings = rs.filter((x) => x.t !== r.t && !(x.f ?? []).includes('sk'))
+/** "opbellen" → "ik bel … op" */
+function splitExample(word: string, sep: string): string {
+  return `ik ${presentStem(word.slice(sep.length))} … ${sep}`
+}
 
+/** The ik-form of a verb, from its infinitive: bellen → bel, nemen → neem, geven → geef, gaan → ga. */
+function presentStem(inf: string): string {
+  const irregular: Record<string, string> = { komen: 'kom', zijn: 'ben', hebben: 'heb', kunnen: 'kan', willen: 'wil', zullen: 'zal', mogen: 'mag' }
+  if (irregular[inf]) return irregular[inf]
+  if (/(aan|oen|ien)$/.test(inf)) return inf.slice(0, -1)
+  let stem = inf.replace(/en$/, '')
+  if (/(.)\1$/.test(stem)) stem = stem.slice(0, -1)
+  else if (/(^|[^aeiou])[aeou][^aeiouwj]$/.test(stem)) stem = stem.replace(/([aeou])([^aeiouwj])$/, '$1$1$2')
+  return stem.replace(/v$/, 'f').replace(/z$/, 's')
+}
+
+/** Full view of one dictionary entry. */
+export function EntryView({ entry: e, ctx, compact = false, form }: { entry: Entry; ctx?: CardContext; compact?: boolean; form?: string }) {
+  const saved = cards.value.has(cardId(e.w))
   return (
     <div class="entry">
       <div class="entry-head">
-        <div class="entry-word" lang="ja">
-          {showWord !== r.t ? <Ruby f={alignFurigana(showWord, r.t) as [string, string?][]} text={showWord} /> : showWord}
+        <div class="entry-word" lang="nl">
+          {e.p === 'n' && <Article a={e.g} />} {e.w}
         </div>
         <div class="entry-actions">
-          <button class="icon-btn" aria-label="Listen" onClick={() => speak(r.t)}>
-            <Icon name="volume" />
-          </button>
+          <Speak text={e.w} recording={e.a} size={22} />
           <button
             class={`icon-btn save ${saved ? 'on' : ''}`}
             aria-label={saved ? 'Remove from flashcards' : 'Save to flashcards'}
-            onClick={() => toggleSaved(entry, r, ctx)}
+            onClick={() => toggleSaved(e, ctx)}
           >
             <Icon name="star" fill={saved} />
           </button>
         </div>
       </div>
       <div class="entry-sub">
-        <span lang="ja">{r.t}</span>
-        <span class="romaji">{toRomaji(r.t)}</span>
-        <JlptBadge level={entry.j} />
-        {entry.c && <span class="badge common">common</span>}
+        <span class="pos">{POS_LABELS[e.p] ?? e.p}</span>
+        {e.ipa && <span class="ipa">{e.ipa}</span>}
+        <CefrBadge level={e.l} />
+        {form && <span class="badge form">{form}</span>}
       </div>
-      {r.a && !compact && <PitchDiagram reading={r.t} accent={r.a} />}
-      <ol class="senses">
-        {entry.s
-          .filter((s) => !s.sk || s.sk.includes(head.word) || entry.uk)
-          .filter((s) => !s.sr || s.sr.includes(r.t))
-          .slice(0, compact ? 3 : undefined)
-          .map((s) => (
-            <li>
-              <TagList tags={s.p} class="pos" />
-              <TagList tags={[...(s.m ?? []), ...(s.d ?? []), ...(s.l ?? [])]} />
-              <div class="gloss">{s.g.join('; ')}</div>
-              {s.n && <div class="muted small">{s.n.join('; ')}</div>}
-              {s.x && (
-                <div class="muted small">
-                  See also:{' '}
-                  {s.x.map((x) => (
-                    <button class="link" onClick={() => navigate(`/dictionary?q=${encodeURIComponent(x.split('・')[0])}`)}>
-                      {x}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </li>
-          ))}
-      </ol>
-      {!compact && (otherForms.length > 0 || otherReadings.length > 0) && (
-        <div class="muted small other-forms" lang="ja">
-          Other forms: {[...otherForms.map((k) => k.t), ...otherReadings.map((x) => x.t)].join('、')}
+      {e.p === 'n' && (e.pl?.length || e.dim || e.g) && (
+        <div class="noun-forms small">
+          {e.g === 'het' && (
+            <button class="chip small het-chip" onClick={() => navigate('/grammar/de-het')}>
+              het-word
+            </button>
+          )}
+          {e.g === 'de/het' && (
+            <button class="chip small" onClick={() => navigate('/grammar/de-het')}>
+              de or het
+            </button>
+          )}
+          {e.pl?.length ? (
+            <span>
+              <span class="label">plural</span> de {e.pl.join(', ')}
+            </span>
+          ) : e.po ? (
+            <span class="muted">plural only</span>
+          ) : null}
+          {e.dim && (
+            <span>
+              <span class="label">small</span> het {e.dim}
+            </span>
+          )}
         </div>
       )}
-      {!compact && <KanjiPanel chars={kanjiChars} />}
+      {!compact && <VerbForms e={e} />}
+      {compact && e.v && (e.v.k || e.v.sep) && (
+        <div class="small muted">
+          {[e.v.pt, e.v.pp].filter(Boolean).join(' – ')}
+          {e.v.sep ? ` · separable` : ''}
+        </div>
+      )}
+      {e.c && !compact && (
+        <div class="small">
+          <span class="label">comparison</span> {e.w} – {e.c[0]} – {e.c[1] ? `het ${e.c[1]}(e)` : ''}
+        </div>
+      )}
+      <ol class="senses">
+        {e.s.slice(0, compact ? 3 : undefined).map((s) => (
+          <li>
+            <Tags tags={s.t} />
+            <span class="gloss">{s.g}</span>
+            {!compact && s.x && (
+              <div class="example">
+                <span lang="nl">{s.x[0]}</span> <Speak text={s.x[0]} size={14} />
+                <div class="muted small">{s.x[1]}</div>
+              </div>
+            )}
+          </li>
+        ))}
+      </ol>
+      {!compact && (
+        <div class="entry-links small muted">
+          <a href={`https://en.wiktionary.org/wiki/${encodeURIComponent(e.w)}#Dutch`} target="_blank" rel="noopener noreferrer">
+            Wiktionary <Icon name="external" size={12} />
+          </a>
+          {' · '}
+          <a href={`https://woordenlijst.org/zoeken/?q=${encodeURIComponent(e.w)}`} target="_blank" rel="noopener noreferrer">
+            Woordenlijst <Icon name="external" size={12} />
+          </a>
+          {e.a && (
+            <>
+              {' · '}
+              <a href={`https://commons.wikimedia.org/wiki/File:${encodeURIComponent(e.a.split('/').pop()!)}`} target="_blank" rel="noopener noreferrer">
+                recording (CC BY-SA)
+              </a>
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 }

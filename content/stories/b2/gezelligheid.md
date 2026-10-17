@@ -27,6 +27,9 @@ names:
   - A12|A12 (motorway)
   - Ria|Ria (given name)
   - Nederland|the Netherlands
+glosses:
+  - cosy|cosy (English word)
+  - expats|expats, people from abroad working in the Netherlands
 ---
 
 ## Een simpele vraag
@@ -92,7 +95,7 @@ In de woonkamer stonden twintig stoelen in een kring, en op bijna elke stoel zat
 Zoals het hoort, gingen we de hele kring rond om iedereen een hand te geven.
 > As is customary, we went round the whole circle to shake everyone's hand.
 "Gefeliciteerd met je tante," zei een neef tegen mij.
-> "Congratulations on your aunt's birthday," a cousin said to me.
+> "Congratulations on your aunt," a cousin said to me.
 "Gefeliciteerd met je nicht," zei Thiago dapper tegen een oude oom die hij nog nooit had gezien.
 > "Congratulations on your niece," Thiago bravely said to an old uncle he had never seen before.
 Hij leerde snel.

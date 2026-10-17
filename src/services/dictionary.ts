@@ -4,8 +4,8 @@ import { Dictionary } from '../lib/dict'
 interface DictMeta {
   version: string
   entries: number
-  kanji: number
-  buckets: { j: number; e: number; k: number }
+  forms: number
+  buckets: { f: number; e: number; x: number }
 }
 
 let metaP: Promise<DictMeta> | null = null
@@ -42,13 +42,16 @@ export const dictionary = new Dictionary(async (path) => {
 
 export const dictDownload = signal<{ done: number; total: number; running: boolean; error?: string } | null>(null)
 
+const OFFLINE_KEY = 'nl-reading:dict-offline'
+
 export async function downloadDictionary() {
   const meta = await dictMeta()
   const paths = [
-    ...Array.from({ length: meta.buckets.j }, (_, i) => `j/${i}.json`),
+    ...Array.from({ length: meta.buckets.f }, (_, i) => `f/${i}.json`),
     ...Array.from({ length: meta.buckets.e }, (_, i) => `e/${i}.json`),
-    ...Array.from({ length: meta.buckets.k }, (_, i) => `k/${i}.json`),
-    'tags.json',
+    ...Array.from({ length: meta.buckets.x }, (_, i) => `x/${i}.json`),
+    'forms.txt',
+    'lemmas.txt',
   ]
   const cache = await caches.open('dictionary')
   let done = 0
@@ -70,7 +73,7 @@ export async function downloadDictionary() {
   try {
     await Promise.all(Array.from({ length: 8 }, worker))
     dictDownload.value = { done, total: paths.length, running: false }
-    localStorage.setItem('jp-reading:dict-offline', meta.version)
+    localStorage.setItem(OFFLINE_KEY, meta.version)
   } catch (err) {
     dictDownload.value = { done, total: paths.length, running: false, error: (err as Error).message }
   }
@@ -78,7 +81,7 @@ export async function downloadDictionary() {
 
 export function dictionaryOffline(): string | null {
   try {
-    return localStorage.getItem('jp-reading:dict-offline')
+    return localStorage.getItem(OFFLINE_KEY)
   } catch {
     return null
   }

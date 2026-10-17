@@ -25,6 +25,7 @@ names:
 glosses:
   - Friese|Frisian
   - wauw|wow
+  - bank|sofa, couch
 ---
 
 Het is januari en het regent.

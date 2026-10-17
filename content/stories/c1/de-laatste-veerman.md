@@ -27,7 +27,7 @@ names:
   - Van Leeuwen|Van Leeuwen (surname)
   - Jopie|Jopie (given name)
 glosses:
-  - elstar|Elstar (apple variety)
+  - elstars|Elstar apples (apple variety)
 ---
 
 ## De laatste ochtend
@@ -67,8 +67,8 @@ Hij herinnerde zich dokter Van Leeuwen, die op een januarinacht met zijn tas aan
 > He remembered Doctor Van Leeuwen, who stood on the other side with his bag one January night because the child of the family on the farm was coming too early.
 Het had zo hard gevroren dat Teun het ijs langs de randen met een bijl had moeten losslaan.
 > It had frozen so hard that Teun had had to break the ice along the edges loose with an axe.
-Het kind was een meisje geweest, Jopie, en ze was nu zelf grootmoeder.
-> The child had been a girl, Jopie, and she was now a grandmother herself.
+Het kind was een meisje geweest, Jopie, en ze was nu zelf moeder van drie.
+> The child had been a girl, Jopie, and she was now a mother of three herself.
 
 Hij herinnerde zich de bruid in een jurk die veel te wit was voor de modder op de veerstoep, en die per se met het pontje naar de kerk wilde, omdat haar grootouders dat ook hadden gedaan.
 > He remembered the bride in a dress that was far too white for the mud on the ferry landing, who absolutely insisted on taking the ferry to church because her grandparents had done the same.

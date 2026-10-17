@@ -29,6 +29,8 @@ glosses:
   - börek|börek (Turkish pastry with a filling)
   - komşu|neighbour (Turkish)
   - bonk|bang, thump
+  - bloem|flour
+  - verdieping|floor, storey
 ---
 
 Henk de Wit is negenenzeventig.

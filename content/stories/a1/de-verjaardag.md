@@ -19,6 +19,8 @@ names:
   - Amira|Amira (given name)
   - Ellen|Ellen (given name)
   - Nederland|the Netherlands
+glosses:
+  - Nederlands|Dutch
 ---
 
 Amira woont pas drie weken in Nederland.

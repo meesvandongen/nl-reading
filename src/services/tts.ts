@@ -1,9 +1,11 @@
-// Text-to-speech using the browser's Japanese voices, with sentence-level
-// playback queues (for story audio) and Media Session integration (for
-// lock-screen / background "audiobook" controls).
+// Audio: the browser's Dutch text-to-speech voices, with sentence-level playback
+// queues (for story audio) and Media Session integration (for lock-screen /
+// background "audiobook" controls), plus native-speaker recordings of single
+// words from Wikimedia Commons where the dictionary has one.
 
 import { signal } from '@preact/signals'
 import { settings } from '../state/settings'
+import { audioUrl } from '../lib/dict'
 
 export const voices = signal<SpeechSynthesisVoice[]>([])
 export const ttsSupported = typeof window !== 'undefined' && 'speechSynthesis' in window
@@ -12,8 +14,14 @@ function refreshVoices() {
   if (!ttsSupported) return
   const all = speechSynthesis.getVoices()
   voices.value = all
-    .filter((v) => v.lang.replace('_', '-').toLowerCase().startsWith('ja'))
-    .sort((a, b) => Number(b.localService) - Number(a.localService) || a.name.localeCompare(b.name))
+    .filter((v) => v.lang.replace('_', '-').toLowerCase().startsWith('nl'))
+    .sort(
+      (a, b) =>
+        // Netherlands before Belgium, local before online
+        Number(b.lang.toLowerCase().includes('nl-nl')) - Number(a.lang.toLowerCase().includes('nl-nl')) ||
+        Number(b.localService) - Number(a.localService) ||
+        a.name.localeCompare(b.name),
+    )
 }
 if (ttsSupported) {
   refreshVoices()
@@ -27,17 +35,29 @@ function pickVoice(): SpeechSynthesisVoice | undefined {
 
 function utter(text: string, rate: number): SpeechSynthesisUtterance {
   const u = new SpeechSynthesisUtterance(text)
-  u.lang = 'ja-JP'
   const v = pickVoice()
+  u.lang = v?.lang ?? 'nl-NL'
   if (v) u.voice = v
   u.rate = rate
   return u
 }
 
-/** Speak a single word or phrase, interrupting anything playing. */
-export function speak(text: string, rate = settings.value.rate) {
-  if (!ttsSupported) return
+let clip: HTMLAudioElement | null = null
+
+/** Speak a single word or phrase, interrupting anything playing. With a recording path, play that instead. */
+export function speak(text: string, opts: { rate?: number; recording?: string } = {}) {
   stopQueue()
+  clip?.pause()
+  if (opts.recording && settings.value.recordings) {
+    clip = new Audio(audioUrl(opts.recording))
+    clip.play().catch(() => speakTts(text, opts.rate))
+    return
+  }
+  speakTts(text, opts.rate)
+}
+
+function speakTts(text: string, rate = settings.value.rate) {
+  if (!ttsSupported) return
   speechSynthesis.cancel()
   speechSynthesis.speak(utter(text, rate))
 }
@@ -139,9 +159,9 @@ function setupMediaSession(meta?: { title: string; artist?: string }) {
   const ms = navigator.mediaSession
   try {
     ms.metadata = new MediaMetadata({
-      title: meta?.title ?? 'Japanese reading',
-      artist: meta?.artist ?? 'JP Reading',
-      album: 'JP Reading',
+      title: meta?.title ?? 'Dutch reading',
+      artist: meta?.artist ?? 'NL Reading',
+      album: 'NL Reading',
       artwork: [{ src: new URL('icons/icon-512.png', location.href).href, sizes: '512x512', type: 'image/png' }],
     })
     ms.setActionHandler('play', () => resumeQueue())

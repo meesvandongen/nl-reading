@@ -28,6 +28,9 @@ names:
   - Amsterdam|Amsterdam
   - Kaapstad|Cape Town
   - Gerrit|Gerrit (given name)
+glosses:
+  - knikje|little nod (diminutive of knik)
+  - opgeslokt|swallowed up (from opslokken)
 ---
 
 ## Een stormachtige avond

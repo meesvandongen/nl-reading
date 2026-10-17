@@ -3,7 +3,7 @@ dist
 .cache
 public/data/dict
 public/data/library
-public/kuromoji
+public/data/practice.json
 dev-dist
 *.local
 .DS_Store

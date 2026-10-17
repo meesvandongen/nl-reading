@@ -44,7 +44,7 @@ In de kantine staan bier, wijn en frisdrank op tafel.
 Iedereen praat en lacht.
 > Everyone is talking and laughing.
 Dan komt Ingrid binnen met een grote schaal bitterballen.
-> Then Ingrid comes in with a big plate of bitterballen.
+> Then Ingrid comes in with a big platter of bitterballen.
 "Ze komen net uit de frituurpan!" roept ze.
 > "They've just come out of the deep fryer!" she calls.
 Julia heeft honger, want ze heeft niet geluncht.
@@ -56,14 +56,14 @@ Ze pakt een bitterbal en stopt hem in één keer in haar mond.
 Te laat.
 > Too late.
 
-Van buiten is de bitterbal warm, maar van binnen is hij heet als lava.
+Vanbuiten is de bitterbal warm, maar vanbinnen is hij heet als lava.
 > On the outside the bitterbal is warm, but on the inside it's as hot as lava.
 Julia kan niet praten en ze kan niet slikken.
 > Julia can't talk and she can't swallow.
 Ze kan hem ook niet uitspugen, want haar nieuwe baas staat naast haar.
 > She can't spit it out either, because her new boss is standing next to her.
 Ze wappert met haar hand voor haar mond en springt op en neer.
-> She fans her hand in front of her mouth and jumps up and down.
+> She waves her hand in front of her mouth and jumps up and down.
 Ingrid geeft haar snel een glas water.
 > Ingrid quickly gives her a glass of water.
 Eindelijk kan Julia slikken.
@@ -72,7 +72,7 @@ Eindelijk kan Julia slikken.
 "Sorry," zegt Mark.
 > "Sorry," says Mark.
 "Ik wilde je nog waarschuwen."
-> "I was just about to warn you."
+> "I meant to warn you."
 "Iedereen verbrandt zijn mond op zijn eerste borrel," zegt de baas.
 > "Everyone burns their mouth at their first borrel," says the boss.
 "Ik ook, in 2009."

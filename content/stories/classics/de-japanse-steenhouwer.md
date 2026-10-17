@@ -35,6 +35,7 @@ glosses:
   - druppen|drops (old form of druppels)
   - kudden|herds (old plural of kudde)
   - loons|pay, wages (old genitive of loon)
+  - zwaren|heavy (old inflected form of zwaar)
 ---
 
 Oepi, er was een man die stenen hieuw uit de rots.

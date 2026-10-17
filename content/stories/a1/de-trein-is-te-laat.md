@@ -65,7 +65,7 @@ Lisa kijkt hem verbaasd aan.
 "Ik ga ook naar zijn feest!"
 > "I'm going to his party too!"
 "Dan ben jij Lisa!" zegt de man.
-> "Then you must be Lisa!"
+> "Then you must be Lisa!" says the man.
 "Bram praat altijd over jou."
 > "Bram always talks about you."
 

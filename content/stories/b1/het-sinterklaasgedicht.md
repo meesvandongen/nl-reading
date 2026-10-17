@@ -96,8 +96,8 @@ Daarin verstopte ze het cadeautje: een paar knalrode sokken met kleine dansende 
 
 Op 5 december zat de hele familie in de woonkamer, met warme chocolademelk en een schaal pepernoten.
 > On 5 December, the whole family was sitting in the living room, with hot chocolate and a bowl of pepernoten.
-Om de beurt mocht iemand een surprise openmaken, maar eerst moest het gedicht hardop worden voorgelezen.
-> One at a time, each person got to open a surprise, but first the poem had to be read out loud.
+Iedereen mocht om de beurt een surprise openmaken, maar eerst moest het gedicht hardop worden voorgelezen.
+> Everyone took turns opening a surprise, but first the poem had to be read out loud.
 Toen Daan het grote kartonnen boek kreeg, keek hij er wantrouwig naar.
 > When Daan got the big cardboard book, he looked at it suspiciously.
 Hij vouwde het gedicht open, schraapte zijn keel en begon te lezen.

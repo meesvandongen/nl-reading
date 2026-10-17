@@ -14,9 +14,9 @@ keywords:
   - het wetsvoorstel|bill (proposed law)
   - het sluitgat|closing gap (last opening in a dam under construction)
   - zoet|fresh (of water), sweet
-  - de visserij|fishing industry, fishery
+  - de visser|fisherman
   - inpolderen|to reclaim (land) as a polder
-  - de getijden|tides
+  - "het getij|tide (plural: getijden)"
   - het bestaan|livelihood, existence
 names:
   - Afsluitdijk|Afsluitdijk (the 32 km dam that closes off the former Zuiderzee)
@@ -47,6 +47,8 @@ names:
   - Lelystad|Lelystad (capital of Flevoland, named after Cornelis Lely)
   - Almere|Almere (city in Flevoland)
   - Nederland|the Netherlands
+glosses:
+  - woelige|rough, choppy (of water; from woelig)
 ---
 
 ## Een nacht in januari
@@ -71,7 +73,7 @@ De ramp gaf de doorslag in een discussie die al tientallen jaren werd gevoerd: m
 
 ## Het plan van Lely
 
-Een van de mannen die die vraag al lang met een volmondig ja beantwoordde, was de ingenieur Cornelis Lely.
+Een van de mannen die die vraag al lang met een volmondig ja beantwoordden, was de ingenieur Cornelis Lely.
 > One of the men who had long answered that question with a wholehearted yes was the engineer Cornelis Lely.
 Al in 1891 had hij een plan gepresenteerd: een lange dam van Noord-Holland naar Friesland, en daarachter nieuwe polders waar boeren konden wonen en werken.
 > As early as 1891 he had presented a plan: a long dam from North Holland to Friesland, and behind it new polders where farmers could live and work.

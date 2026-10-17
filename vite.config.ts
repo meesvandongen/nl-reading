@@ -15,10 +15,10 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'icons/*.png'],
       manifest: {
         id: './',
-        name: 'JP Reading — 読む読む',
-        short_name: 'JP Reading',
+        name: 'NL Reading — Lees mee',
+        short_name: 'NL Reading',
         description:
-          'Read Japanese stories with tap-to-look-up dictionary, furigana, romaji, pitch accent, audio, translations and SRS flashcards. Paste any Japanese text to read it the same way.',
+          'Read Dutch stories with tap-to-look-up dictionary, de/het, verb forms, separable verbs, audio, translations and SRS flashcards. Paste any Dutch text to read it the same way.',
         lang: 'en',
         dir: 'ltr',
         start_url: './',
@@ -26,8 +26,8 @@ export default defineConfig({
         display: 'standalone',
         display_override: ['window-controls-overlay', 'standalone'],
         orientation: 'any',
-        theme_color: '#c0392b',
-        background_color: '#fbf8f3',
+        theme_color: '#e8590c',
+        background_color: '#faf8f5',
         categories: ['education', 'books'],
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
@@ -51,9 +51,10 @@ export default defineConfig({
         launch_handler: { client_mode: ['navigate-existing', 'auto'] },
       } as never,
       workbox: {
-        // App shell + the whole reading library are precached, so every story works offline.
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}', 'data/library/**/*.json'],
-        globIgnores: ['data/dict/**', 'kuromoji/**'],
+        // App shell, the whole reading library and the practice lists are precached, so every
+        // story and drill works offline. The dictionary is cached as it is used.
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2}', 'data/library/**/*.json', 'data/practice.json'],
+        globIgnores: ['data/dict/**'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         navigateFallback: 'index.html',
         importScripts: ['sw-reminders.js'],
@@ -69,17 +70,14 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: ({ url }) => url.pathname.includes('/kuromoji/'),
-            handler: 'CacheFirst',
-            options: { cacheName: 'tokenizer', cacheableResponse: { statuses: [200] } },
-          },
-          {
-            urlPattern: ({ url }) => url.hostname === 'cdn.jsdelivr.net' && url.pathname.includes('kanjivg'),
+            // native-speaker recordings of single words
+            urlPattern: ({ url }) => url.hostname === 'upload.wikimedia.org',
             handler: 'CacheFirst',
             options: {
-              cacheName: 'kanjivg',
-              expiration: { maxEntries: 3000 },
+              cacheName: 'recordings',
+              expiration: { maxEntries: 1000, purgeOnQuotaError: true },
               cacheableResponse: { statuses: [0, 200] },
+              rangeRequests: true,
             },
           },
           {

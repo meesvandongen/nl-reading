@@ -21,6 +21,8 @@ names:
   - Tijger|Tijger (cat's name, "Tiger")
   - Bolletje|Bolletje (cat's name, "Little Ball")
   - De Wit|De Wit (family name)
+glosses:
+  - bank|sofa, couch
 ---
 
 Elke middag komt de kat van de buren binnen.

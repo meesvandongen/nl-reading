@@ -65,7 +65,9 @@ Daan zucht.
 > Daan sighs.
 Hij fietst terug naar huis.
 > He cycles back home.
-En de wind? Die draait ook.
-> And the wind? It turns too.
+En de wind?
+> And the wind?
+Die draait ook.
+> It changes direction too.
 Weer tegenwind!
 > Headwind again!

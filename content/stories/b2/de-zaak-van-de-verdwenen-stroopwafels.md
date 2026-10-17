@@ -33,6 +33,9 @@ names:
   - België|Belgium
   - Sherlock Holmes|Sherlock Holmes (fictional detective)
   - Excel|Excel (spreadsheet program)
+glosses:
+  - ICT|IT (information and communication technology)
+  - "pletter|te pletter: to pieces (zich te pletter vervelen: to be bored stiff)"
 ---
 
 ## Een raadsel op de veertiende verdieping
@@ -48,7 +51,7 @@ Petra was er helemaal klaar mee.
 > Petra had had enough of it.
 Ze hing een briefje op de koelkast met in grote letters: "WIE HEEFT DE STROOPWAFELS GEPIKT?"
 > She stuck a note on the fridge saying in big letters: "WHO NICKED THE STROOPWAFELS?"
-Er werd gefluisterd bij het koffieapparaat, er werden blikken gewisseld tijdens het werkoverleg, maar niemand wist van iets.
+Er werd gefluisterd bij het koffieapparaat, er werden blikken gewisseld tijdens het werkoverleg, maar niemand wist ergens van.
 > There was whispering at the coffee machine and there were looks exchanged during the team meeting, but nobody knew anything about it.
 
 Yasmina van de debiteurenadministratie verveelde zich op maandagochtend altijd te pletter.

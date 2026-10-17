@@ -72,18 +72,18 @@ export function ProgressPage() {
 
   const totals = useMemo(() => {
     let seconds = 0
-    let chars = 0
+    let words = 0
     let reviews = 0
     for (const a of activity.value.values()) {
       seconds += a.seconds
-      chars += a.chars
+      words += a.words ?? 0
       reviews += a.reviews
     }
     const completed = [...progress.value.values()].filter((p) => p.completedAt).length
     const allCards = [...cards.value.values()]
     return {
       seconds,
-      chars,
+      read: words,
       reviews,
       completed,
       words: allCards.length,
@@ -159,8 +159,8 @@ export function ProgressPage() {
           <span>stories read</span>
         </div>
         <div class="stat">
-          <b>{totals.chars >= 10000 ? `${(totals.chars / 1000).toFixed(1)}k` : totals.chars.toLocaleString()}</b>
-          <span>characters read</span>
+          <b>{totals.read >= 10000 ? `${(totals.read / 1000).toFixed(1)}k` : totals.read.toLocaleString()}</b>
+          <span>words read</span>
         </div>
         <div class="stat">
           <b>{Math.round(totals.seconds / 60)}</b>

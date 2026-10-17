@@ -12,7 +12,6 @@ import { ImportPage } from './pages/ImportPage'
 import { ReviewPage } from './pages/ReviewPage'
 import { DictionaryPage } from './pages/DictionaryPage'
 import { GrammarListPage, GrammarArticlePage } from './pages/GrammarPage'
-import { KanjiPage } from './pages/KanjiPage'
 import { ProgressPage } from './pages/ProgressPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { AboutPage } from './pages/AboutPage'
@@ -20,7 +19,7 @@ import { AboutPage } from './pages/AboutPage'
 const TABS = [
   { path: '/', icon: 'book', label: 'Read', match: (p: string) => p === '/' || p.startsWith('/import') || p.startsWith('/series') },
   { path: '/review', icon: 'cards', label: 'Flashcards', match: (p: string) => p.startsWith('/review') },
-  { path: '/dictionary', icon: 'search', label: 'Dictionary', match: (p: string) => p.startsWith('/dictionary') || p.startsWith('/kanji') },
+  { path: '/dictionary', icon: 'search', label: 'Dictionary', match: (p: string) => p.startsWith('/dictionary') },
   { path: '/grammar', icon: 'grammar', label: 'Grammar', match: (p: string) => p.startsWith('/grammar') },
   { path: '/progress', icon: 'user', label: 'Me', match: (p: string) => ['/progress', '/settings', '/about'].some((x) => p.startsWith(x)) },
 ]
@@ -40,8 +39,6 @@ function Page() {
       return <ReviewPage />
     case 'dictionary':
       return <DictionaryPage />
-    case 'kanji':
-      return <KanjiPage char={parts[1]} />
     case 'grammar':
       return parts[1] ? <GrammarArticlePage id={parts[1]} /> : <GrammarListPage />
     case 'progress':

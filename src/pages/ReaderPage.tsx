@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import type { Sentence, StoryDoc, Word } from '../lib/types'
 import { isLookupWord, lemmaKey, sentenceText } from '../lib/analyze'
-import { hasKanji, isKana, toHiragana, toRomaji } from '../lib/kana'
-import { levelInfo } from '../lib/levels'
+import { readingMinutes, CEFR_NAMES } from '../lib/levels'
 import { getStory, library } from '../services/library'
 import { cards, known, logActivity, progress, updateProgress } from '../state/db'
 import { settings, FONTS } from '../state/settings'
 import { playing, playQueue, pauseQueue, resumeQueue, seekQueue, stopQueue, ttsSupported } from '../services/tts'
-import { saveKeyword, cardId } from '../services/cards'
+import { toggleKeyword, cardId } from '../services/cards'
 import { back, navigate } from '../router'
-import { accentClass } from '../components/PitchAccent'
 import { Icon } from '../components/Icon'
-import { JlptBadge, LevelBadge } from '../components/Badges'
+import { Article, CefrBadge, LevelBadge } from '../components/Badges'
 import { LookupPanel, markHoldHintSeen, type LookupView } from '../components/LookupPanel'
 import { ReaderSettings } from '../components/ReaderSettings'
 import { Sheet } from '../components/Sheet'
@@ -77,15 +75,13 @@ function Reader({ doc }: { doc: StoryDoc }) {
     return m
   }, [flat])
 
-  // Saved / known lookups for highlighting and adaptive reading aids
-  const savedEntries = useMemo(() => {
-    const set = new Set<number>()
-    const mature = new Set<number>()
+  // Saved / known words for highlighting and adaptive gloss hints
+  const savedWords = useMemo(() => {
+    const set = new Set<string>()
+    const mature = new Set<string>()
     for (const c of cards.value.values()) {
-      if (c.entryId) {
-        set.add(c.entryId)
-        if (c.interval >= 21) mature.add(c.entryId)
-      }
+      set.add(c.id)
+      if (c.interval >= 21) mature.add(c.id)
     }
     return { set, mature }
   }, [cards.value])
@@ -126,7 +122,7 @@ function Reader({ doc }: { doc: StoryDoc }) {
       io.disconnect()
       if (timer) clearTimeout(timer)
     }
-  }, [doc, s.translation, s.vertical])
+  }, [doc, s.translation])
 
   // Time spent reading (only while visible and recently active)
   useEffect(() => {
@@ -256,10 +252,6 @@ function Reader({ doc }: { doc: StoryDoc }) {
       const sentEl = root?.querySelector(`[data-si="${sel.si}"]`)
       if (!sentEl) return
       const wordEl = sel.wi !== null ? root!.querySelector(`[data-w="${sel.si}.${sel.wi}"]`) : null
-      if (s.vertical) {
-        ;(wordEl ?? sentEl).scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' })
-        return
-      }
       const top = (document.querySelector('.reader-bar')?.getBoundingClientRect().bottom ?? 0) + 8
       const bottom = window.innerHeight - panel.height - 24
       let r = sentEl.getBoundingClientRect()
@@ -275,56 +267,43 @@ function Reader({ doc }: { doc: StoryDoc }) {
 
   const closeLookup = useCallback(() => setSel(null), [])
 
-  const aidHidden = (w: Word): boolean => {
-    if (s.aidScope === 'all') return false
-    if (s.aidScope === 'jlpt') return !!w.j && w.j >= s.aidJlpt
-    // unknown-only
-    return knownMap.get(lemmaKey(w))?.status === 'known' || (!!w.e && savedEntries.mature.has(w.e))
+  const glossShown = (w: Word): boolean => {
+    // (the prefix of a separable verb: the verb part already shows the meaning)
+    if (!w.h || w.m || w.p === 'name' || w.p === 'num' || w.p === 'prt') return false
+    const key = lemmaKey(w)
+    switch (s.glossScope) {
+      case 'off':
+        return false
+      case 'all':
+        return true
+      case 'level':
+        return (w.l ?? 6) > s.glossLevel
+      case 'unknown':
+        return knownMap.get(key)?.status !== 'known' && !savedWords.mature.has(key) && (w.l ?? 6) > 1
+    }
   }
 
+  const selWord = sel?.view === 'word' && sel.wi !== null ? flat[sel.si]?.s.w[sel.wi] : undefined
+
   const renderWord = (w: Word, si: number, wi: number) => {
-    if (!isLookupWord(w)) return w.s
+    if (!isLookupWord(w)) return w.s + (w.ws ?? '')
     const cls = ['w']
-    if (s.jlptHighlight && w.j) cls.push(`jl-${w.j}`)
-    if (s.pitchAccent && w.a && !w.b) cls.push(accentClass(w.r ?? toHiragana(w.s), w.a))
-    if (s.highlightSaved && w.e && savedEntries.set.has(w.e)) cls.push('saved')
+    if (s.articleColors && w.p === 'n' && w.a) cls.push(`art-${w.a === 'het' ? 'het' : w.a === 'de' ? 'de' : 'both'}`)
+    if (s.levelHighlight && w.l) cls.push(`lv-${w.l}`)
+    if (s.highlightSaved && savedWords.set.has(lemmaKey(w))) cls.push('saved')
     if (sel?.view === 'word' && sel.si === si && sel.wi === wi) cls.push('active')
-    let inner: preact.ComponentChildren = w.s
-    const reading = w.pr ?? w.r ?? toHiragana(w.s)
-    if (hasKanji(w.s)) {
-      if (!aidHidden(w)) {
-        if (s.kanjiAid === 'furigana' && w.f) {
-          inner = w.f.map(([t, r]) =>
-            r ? (
-              <ruby>
-                {t}
-                <rt>{r}</rt>
-              </ruby>
-            ) : (
-              t
-            ),
-          )
-        } else if (s.kanjiAid === 'romaji') {
-          inner = (
-            <ruby>
-              {w.s}
-              <rt class="rt-romaji">{toRomaji(reading)}</rt>
-            </ruby>
-          )
-        }
-      }
-    } else if (s.kanaAid === 'romaji' && isKana(w.s) && !aidHidden(w)) {
-      inner = (
-        <ruby>
-          {w.s}
-          <rt class="rt-romaji">{toRomaji(reading)}</rt>
-        </ruby>
-      )
-    }
+    // the other half of a separable verb lights up too (bel … op)
+    else if (selWord && sel!.si === si && selWord.sp === wi) cls.push('active partner')
+    // the meaning sits above the word without widening it (unlike <ruby>)
+    const gloss = glossShown(w) ? w.h : undefined
+    if (gloss) cls.push('gl')
     return (
-      <span class={cls.join(' ')} data-w={`${si}.${wi}`}>
-        {inner}
-      </span>
+      <>
+        <span class={cls.join(' ')} data-w={`${si}.${wi}`} data-gloss={gloss}>
+          {w.s}
+        </span>
+        {w.ws}
+      </>
     )
   }
 
@@ -341,13 +320,14 @@ function Reader({ doc }: { doc: StoryDoc }) {
     const p = progress.value.get(id)
     const first = !p?.completedAt
     await updateProgress(id, { completedAt: Date.now(), timesCompleted: (p?.timesCompleted ?? 0) + 1, position: 0 })
-    await logActivity({ stories: 1, chars: doc.meta.chars, storyId: id })
+    await logActivity({ stories: 1, words: doc.meta.words, storyId: id })
     if (first) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
   }
 
   const completed = !!prog?.completedAt
   const font = FONTS[s.fontFamily].css
-  const style = { fontFamily: font, fontSize: `${s.fontSize}px`, lineHeight: s.lineHeight }
+  // meanings above words need room between the lines
+  const style = { fontFamily: font, fontSize: `${s.fontSize}px`, lineHeight: s.glossScope !== 'off' ? s.lineHeight + 0.4 : s.lineHeight }
   const series = getSeries(doc.meta.series)
   const nextEpisodeId = series && doc.meta.episode ? series.episodes[doc.meta.episode] : undefined
   const nextEpisode = nextEpisodeId ? library.value?.stories.find((m) => m.id === nextEpisodeId) : undefined
@@ -361,14 +341,14 @@ function Reader({ doc }: { doc: StoryDoc }) {
 
   return (
     <div
-      class={`reader ${s.vertical ? 'vertical' : ''} ${sel ? 'lookup-open' : ''}`}
+      class={`reader ${sel ? 'lookup-open' : ''} ${s.glossScope !== 'off' ? 'with-gloss' : ''}`}
       style={sel ? { '--panel-h': `${panel.height}px` } : undefined}
     >
       <header class="topbar reader-bar">
         <button class="icon-btn" onClick={() => back('/')} aria-label="Back">
           <Icon name="back" />
         </button>
-        <div class="topbar-title" lang="ja">
+        <div class="topbar-title" lang="nl">
           {doc.meta.title}
         </div>
         <button
@@ -392,17 +372,17 @@ function Reader({ doc }: { doc: StoryDoc }) {
         <div class="reader-head">
           {series && (
             <button class="series-link" onClick={() => navigate(`/series/${encodeURIComponent(series.id)}`)}>
-              <span lang="ja">{series.title}</span> · Episode {doc.meta.episode} of {series.episodes.length}
+              <span lang="nl">{series.title}</span> · Episode {doc.meta.episode} of {series.episodes.length}
               <Icon name="list" size={14} />
             </button>
           )}
           <div class="reader-meta">
             <LevelBadge level={doc.meta.level} />
             <span class="muted small">
-              {doc.meta.chars.toLocaleString()} characters · ~{Math.max(1, Math.round(doc.meta.chars / (levelInfo(doc.meta.level).jlpt >= 4 ? 150 : 300)))} min
+              {doc.meta.words.toLocaleString()} words · ~{readingMinutes(doc.meta.words, doc.meta.level)} min
             </span>
           </div>
-          <h1 lang="ja" style={{ fontFamily: font }}>
+          <h1 lang="nl" style={{ fontFamily: font }}>
             {doc.meta.title}
           </h1>
           {doc.meta.title_en && <div class="subtitle">{doc.meta.title_en}</div>}
@@ -415,7 +395,7 @@ function Reader({ doc }: { doc: StoryDoc }) {
           )}
         </div>
 
-        <div ref={textRef} class={`reader-text tr-${s.translation}`} style={style} lang="ja" onClick={onTextClick}>
+        <div ref={textRef} class={`reader-text tr-${s.translation}`} style={style} lang="nl" onClick={onTextClick}>
           {doc.chapters.map((c) => (
             <section class="chapter">
               {c.title && <h2 class="chapter-title">{c.title}</h2>}
@@ -438,7 +418,7 @@ function Reader({ doc }: { doc: StoryDoc }) {
                   </div>
                 ) : (
                   <div class="para">
-                    <p>{p.s.map(renderSentence)}</p>
+                    <p>{p.s.map((x, i) => [renderSentence(x), i < p.s.length - 1 ? ' ' : null])}</p>
                     {s.translation === 'paragraph' && p.s.some((x) => x.en) && (
                       <div class="tr shown" lang="en">
                         {p.s.map((x) => x.en).filter(Boolean).join(' ')}
@@ -486,7 +466,7 @@ function Reader({ doc }: { doc: StoryDoc }) {
           )}
           {completed && series && !nextEpisode && (
             <button class="series-finale" onClick={() => navigate(`/series/${encodeURIComponent(series.id)}`)}>
-              <b>That was the last episode of <span lang="ja">{series.title}</span>.</b>
+              <b>That was the last episode of <span lang="nl">{series.title}</span>.</b>
               <span class="muted small">See the whole series</span>
             </button>
           )}
@@ -523,14 +503,6 @@ function Reader({ doc }: { doc: StoryDoc }) {
         <LookupPanel
           sentence={flat[sel.si].s}
           word={sel.wi !== null ? flat[sel.si].s.w[sel.wi] : null}
-          rest={
-            sel.wi !== null
-              ? flat[sel.si].s.w
-                  .slice(sel.wi)
-                  .map((w) => w.s)
-                  .join('')
-              : ''
-          }
           view={sel.view}
           storyId={id.startsWith('my-') ? undefined : id}
           onView={(view) => setSel({ ...sel, view })}
@@ -560,25 +532,22 @@ function KeywordList({ doc }: { doc: StoryDoc }) {
   return (
     <ul class="keyword-list">
       {doc.keywords.map((k) => {
-        const saved = cards.value.has(cardId(k.w, k.r || k.w))
+        const m = /^(de|het|de\/het)\s+(.+)$/i.exec(k.w)
+        const word = m ? m[2] : k.w
+        const saved = cards.value.has(cardId(word))
         return (
           <li>
             <div>
-              <span class="kw-word" lang="ja">
-                {k.w}
+              <span class="kw-word" lang="nl">
+                {m && <Article a={m[1].toLowerCase()} />} {word}
               </span>{' '}
-              {k.r && k.r !== k.w && (
-                <span class="muted" lang="ja">
-                  {k.r}
-                </span>
-              )}{' '}
-              <JlptBadge level={k.j} />
+              <CefrBadge level={k.l} />
               <div class="small">{k.m}</div>
             </div>
             <button
               class={`icon-btn save ${saved ? 'on' : ''}`}
               aria-label={saved ? 'Remove from flashcards' : 'Save to flashcards'}
-              onClick={() => saveKeyword(k.w, k.r, k.m, k.j, doc.meta.id.startsWith('my-') ? undefined : doc.meta.id)}
+              onClick={() => toggleKeyword(k.w, k.m, k.l, doc.meta.id.startsWith('my-') ? undefined : doc.meta.id)}
             >
               <Icon name="star" fill={saved} />
             </button>
@@ -589,7 +558,7 @@ function KeywordList({ doc }: { doc: StoryDoc }) {
   )
 }
 
-function ResourceHub({ doc, grammar, saved }: { doc: StoryDoc; grammar: [string, number][]; saved: { id: string; word: string; reading: string; meaning: string }[] }) {
+function ResourceHub({ doc, grammar, saved }: { doc: StoryDoc; grammar: [string, number][]; saved: { id: string; word: string; article?: string; meaning: string }[] }) {
   const [tab, setTab] = useState<'keywords' | 'saved' | 'grammar' | 'info'>(doc.keywords.length ? 'keywords' : 'grammar')
   const known = library.value?.grammar
   return (
@@ -607,7 +576,9 @@ function ResourceHub({ doc, grammar, saved }: { doc: StoryDoc; grammar: [string,
           <ul class="word-list">
             {saved.map((c) => (
               <li>
-                <b lang="ja">{c.word}</b> <span class="muted" lang="ja">{c.reading !== c.word ? c.reading : ''}</span>
+                <b lang="nl">
+                  {c.article && <Article a={c.article} />} {c.word}
+                </b>
                 <div class="small">{c.meaning}</div>
               </li>
             ))}
@@ -633,10 +604,10 @@ function ResourceHub({ doc, grammar, saved }: { doc: StoryDoc; grammar: [string,
         <div class="story-info">
           {doc.meta.summary && <p>{doc.meta.summary}</p>}
           <p class="small">
-            <LevelBadge level={doc.meta.level} /> {doc.meta.sentences} sentences · {doc.meta.chars.toLocaleString()} characters
+            <LevelBadge level={doc.meta.level} /> {doc.meta.sentences} sentences · {doc.meta.words.toLocaleString()} words
             {doc.meta.lemmas ? ` · ${doc.meta.lemmas} unique words` : ''}
           </p>
-          {doc.meta.jlpt && <JlptBar dist={doc.meta.jlpt} />}
+          {doc.meta.cefr && <CefrBar dist={doc.meta.cefr} />}
           {doc.meta.author && <p class="small">Author: {doc.meta.author}</p>}
           {doc.meta.license && <p class="small">License: {doc.meta.license}</p>}
           {doc.meta.source && (
@@ -650,23 +621,24 @@ function ResourceHub({ doc, grammar, saved }: { doc: StoryDoc; grammar: [string,
   )
 }
 
-export function JlptBar({ dist }: { dist: number[] }) {
+export function CefrBar({ dist }: { dist: number[] }) {
   const total = dist.reduce((a, b) => a + b, 0) || 1
-  const order = [5, 4, 3, 2, 1, 0]
+  const order = [1, 2, 3, 4, 5, 6, 0]
   return (
     <div>
-      <div class="jlpt-bar" role="img" aria-label="Vocabulary by JLPT level">
-        {order.map((l) => (dist[l] ? <span class={`seg jl-bg-${l}`} style={{ width: `${(dist[l] / total) * 100}%` }} title={`${l ? 'N' + l : 'Other'}: ${dist[l]}`} /> : null))}
+      <div class="cefr-bar" role="img" aria-label="Vocabulary by level">
+        {order.map((l) => (dist[l] ? <span class={`seg lv-bg-${l}`} style={{ width: `${(dist[l] / total) * 100}%` }} title={`${l ? CEFR_NAMES[l] : 'Other'}: ${dist[l]}`} /> : null))}
       </div>
-      <div class="jlpt-legend small">
+      <div class="cefr-legend small">
         {order.map((l) =>
           dist[l] ? (
             <span>
-              <i class={`dot jl-bg-${l}`} /> {l ? `N${l}` : 'Other'} {Math.round((dist[l] / total) * 100)}%
+              <i class={`dot lv-bg-${l}`} /> {l ? CEFR_NAMES[l] : 'Other'} {Math.round((dist[l] / total) * 100)}%
             </span>
           ) : null,
         )}
       </div>
+      <p class="muted small">Word levels are estimated from how common each word is.</p>
     </div>
   )
 }
@@ -753,7 +725,7 @@ function AudioBar({
                   onChapter(c.start)
                 }}
               >
-                <Icon name="play" size={14} /> <span lang="ja">{c.title}</span>
+                <Icon name="play" size={14} /> <span lang="nl">{c.title}</span>
               </button>
             </li>
           ))}

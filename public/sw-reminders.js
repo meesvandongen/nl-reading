@@ -9,7 +9,7 @@ function todayKey() {
 
 function readToday() {
   return new Promise((resolve) => {
-    const req = indexedDB.open('jp-reading')
+    const req = indexedDB.open('nl-reading')
     req.onerror = () => resolve(null)
     req.onsuccess = () => {
       try {
@@ -34,7 +34,7 @@ async function maybeRemind() {
   if (now.getHours() * 60 + now.getMinutes() < h * 60 + m) return
   const a = await readToday()
   if (a && (a.seconds >= 60 || a.stories > 0)) return
-  await self.registration.showNotification('読む時間です — time to read!', {
+  await self.registration.showNotification('Tijd om te lezen — time to read!', {
     body: 'A few minutes of reading keeps your streak going.',
     icon: 'icons/icon-192.png',
     badge: 'icons/icon-192.png',

@@ -29,6 +29,10 @@ names:
   - Zeelandbrug|Zeeland Bridge (bridge over the Oosterschelde)
   - Goes|Goes (town in Zeeland)
   - PZC|PZC (Provinciale Zeeuwse Courant, regional newspaper)
+glosses:
+  - ingelijste|framed (from inlijsten)
+  - afgebladderd|flaked off, peeled (of paint; from afbladderen)
+  - nakomertje|child born long after its siblings, afterthought
 ---
 
 Het huis rook nog naar hem: naar pijptabak, natte jassen en de appels die hij elk najaar op zolder te drogen legde.
@@ -88,7 +92,7 @@ Joost pakte hem op en woog hem in zijn hand.
 Het woord bleef even in de kamer hangen.
 > The word hung in the room for a moment.
 Anneke was altijd de bedeesde geweest, het nakomertje dat aan tafel nauwelijks een woord zei.
-> Anneke had always been the timid one, the late arrival who hardly said a word at the table.
+> Anneke had always been the timid one, the afterthought who hardly said a word at the table.
 "Hij is niks waard, Anneke," zei Joost met een verbaasd lachje.
 > "It's worth nothing, Anneke," Joost said with a puzzled little laugh.
 "Daarom juist."

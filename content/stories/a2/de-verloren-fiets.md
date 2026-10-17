@@ -58,7 +58,7 @@ Ze belt haar vriend Daan.
 > "Have a look at the bike depot's website."
 In Utrecht neemt de gemeente soms fietsen mee als ze op de verkeerde plek staan.
 > In Utrecht the council sometimes takes bikes away if they are parked in the wrong place.
-Sanne zoekt op haar telefoon, maar haar fiets staat niet in de lijst.
+Sanne zoekt op haar telefoon, maar haar fiets staat niet op de lijst.
 > Sanne searches on her phone, but her bike isn't on the list.
 
 Dus loopt ze met haar zware tassen naar het politiebureau.

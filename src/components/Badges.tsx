@@ -1,8 +1,13 @@
-import { levelInfo } from '../lib/levels'
+import { CEFR_NAMES, levelInfo } from '../lib/levels'
 
-export function JlptBadge({ level }: { level?: number }) {
+/** CEFR level of a word (1 = A1 … 6 = C2), estimated from word frequency. */
+export function CefrBadge({ level }: { level?: number }) {
   if (!level) return null
-  return <span class={`badge jlpt jlpt-${level}`}>N{level}</span>
+  return (
+    <span class={`badge cefr cefr-${level}`} title={`Word level ${CEFR_NAMES[level]} (estimated from how common the word is)`}>
+      {CEFR_NAMES[level]}
+    </span>
+  )
 }
 
 export function LevelBadge({ level }: { level: string }) {
@@ -14,20 +19,8 @@ export function LevelBadge({ level }: { level: string }) {
   )
 }
 
-export function Ruby({ f, text }: { f?: [string, string?][]; text: string }) {
-  if (!f) return <>{text}</>
-  return (
-    <>
-      {f.map(([t, r]) =>
-        r ? (
-          <ruby>
-            {t}
-            <rt>{r}</rt>
-          </ruby>
-        ) : (
-          t
-        ),
-      )}
-    </>
-  )
+/** The article of a noun, coloured: de / het. */
+export function Article({ a }: { a?: string }) {
+  if (!a) return null
+  return <span class={`article art-${a === 'het' ? 'het' : a === 'de' ? 'de' : 'both'}`}>{a}</span>
 }

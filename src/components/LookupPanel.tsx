@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { Sentence, Word } from '../lib/types'
-import type { Entry, RawReading } from '../lib/dict'
-import { headword, nameMismatch, readings } from '../lib/dict'
+import { formLabel, shortGloss, type Entry } from '../lib/dict'
 import { isLookupWord, lemmaKey, sentenceText } from '../lib/analyze'
-import { breakdownChain, shortGloss } from '../lib/gloss'
-import { hasKanji, toHiragana, toRomaji } from '../lib/kana'
+import { breakdownChain } from '../lib/gloss'
 import { dictionary } from '../services/dictionary'
 import { grammarTitle } from '../services/library'
 import { cachedTranslation, deviceTranslation, translateOnDevice, webTranslators } from '../services/translate'
@@ -18,70 +16,36 @@ export type LookupView = 'word' | 'sentence'
 
 interface Result {
   entry: Entry
-  reading?: RawReading
+  /** what form of this entry the word is */
+  form?: string
   label: string
-  /** one part of a word the dictionary doesn't have as a whole */
+  /** one part of a compound the dictionary doesn't have as a whole */
   part?: boolean
 }
 
-/** Cut a word the dictionary doesn't know into the longest words it does (ストレス + ホルモン). */
-async function dictionaryParts(text: string): Promise<{ text: string; entries: Entry[] }[]> {
-  const out: { text: string; entries: Entry[] }[] = []
-  let i = 0
-  while (i < text.length) {
-    const [longest] = await dictionary.prefixes(text.slice(i), 12)
-    if (longest) {
-      out.push(longest)
-      i += longest.text.length
-    } else i++
-  }
-  return out
-}
-
-async function findResults(word: Word, rest: string): Promise<Result[]> {
+async function findResults(word: Word): Promise<Result[]> {
   const out: Result[] = []
   const seen = new Set<number>()
-  const add = (entry: Entry, reading: RawReading | undefined, label: string, part?: boolean) => {
-    if (seen.has(entry.i)) return
-    seen.add(entry.i)
-    out.push({ entry, reading, label, ...(part ? { part } : {}) })
+  const add = async (id: number | undefined, label: string, form?: string, part?: boolean) => {
+    if (id === undefined || seen.has(id)) return
+    const entry = await dictionary.entry(id)
+    if (!entry) return
+    seen.add(id)
+    out.push({ entry, label, ...(form ? { form } : {}), ...(part ? { part } : {}) })
   }
-  const best = await dictionary.bestEntry(word)
-  // Compounds that start at this word and are longer than it (e.g. 日本 + 語 → 日本語).
-  // Not for particles and auxiliaries: "が" + "い…" only finds noise.
-  const grammatical = word.p === 'prt' || word.p === 'aux'
-  const prefixes = grammatical ? [] : await dictionary.prefixes(rest, 12).catch(() => [])
-  for (const p of prefixes) {
-    if (p.text.length > word.s.length) {
-      const e = p.entries[0]
-      const hira = toHiragana(p.text)
-      add(e, readings(e).find((r) => toHiragana(r.t) === hira), p.text)
+  // the analyzer's reading first (for a separable verb: the whole verb)
+  if (word.e !== undefined && !word.cp) await add(word.e, word.b ?? word.s.toLowerCase(), formLabel(word.c))
+  // the parts of a compound the dictionary doesn't know as a whole
+  for (const p of word.cp ?? []) await add(p.e, p.b, undefined, true)
+  if (word.x) await add(word.x.e, word.x.b)
+  // other words with this spelling (was: zijn / laundry / wax)
+  if (word.p !== 'name' || word.e !== undefined) {
+    for (const { entry, code } of await dictionary.lookup(word.s).catch(() => [])) {
+      if (out.length >= 6) break
+      if (seen.has(entry.i) || (entry.p === 'name' && word.p !== 'name')) continue
+      seen.add(entry.i)
+      out.push({ entry, label: entry.w, ...(code ? { form: formLabel(code) } : {}) })
     }
-  }
-  if (best) {
-    // put the tokenizer's match first, compounds after
-    out.unshift({ entry: best.entry, reading: best.reading, label: best.entry.uk ? word.b ?? word.s : headword(best.entry).word })
-    seen.add(best.entry.i)
-  }
-  const key = word.b ?? word.s
-  const rh = word.b ? word.br : word.r ?? toHiragana(word.s)
-  let extra = 0
-  for (const e of await dictionary.lookup(key).catch(() => [] as Entry[])) {
-    const r = readings(e).find((x) => rh && toHiragana(x.t) === toHiragana(rh))
-    // a name's common-word homographs (大野さん: 大野 "large field") would read as its meaning
-    if (nameMismatch(e, r ?? readings(e)[0], word)) continue
-    // For kana words, other entries read the same way are homophones: show only a few
-    if (!hasKanji(key) && out.length && ++extra > 3) break
-    if (grammatical && out.length) break
-    add(e, r, headword(e).word)
-    if (out.length >= 8) break
-  }
-  // (not for katakana names: ルーカス isn't ルー + カス)
-  if (!out.length && !word.m && (word.p !== 'name' || hasKanji(word.s))) {
-    // Unknown to the dictionary as a whole: show the words it is made of (清水 + 寺, ストレス + ホルモン)
-    const parts = await dictionaryParts(word.s)
-    if (parts.length > 1 || (parts.length === 1 && word.p !== 'name'))
-      for (const p of parts) add(p.entries[0], undefined, p.text, word.p === 'name' || parts.length > 1)
   }
   return out
 }
@@ -89,7 +53,7 @@ async function findResults(word: Word, rest: string): Promise<Result[]> {
 const offlineMessage = (e: Error) =>
   navigator.onLine ? e.message : 'The dictionary is not available offline yet. Download it in Settings → Offline.'
 
-const HOLD_HINT_KEY = 'jp-reading:hint-hold'
+const HOLD_HINT_KEY = 'nl-reading:hint-hold'
 export function markHoldHintSeen() {
   try {
     localStorage.setItem(HOLD_HINT_KEY, '1')
@@ -125,7 +89,6 @@ function useWide() {
 export function LookupPanel({
   sentence,
   word,
-  rest,
   view,
   storyId,
   onView,
@@ -136,8 +99,6 @@ export function LookupPanel({
 }: {
   sentence: Sentence
   word: Word | null
-  /** sentence text from the start of the word */
-  rest: string
   view: LookupView
   storyId?: string
   onView: (v: LookupView) => void
@@ -224,7 +185,7 @@ export function LookupPanel({
       </div>
       <div class="lp-body" ref={bodyRef}>
         {view === 'word' && word ? (
-          <WordView word={word} sentence={sentence} rest={rest} storyId={storyId} detailed={detailed} onMore={() => setExpanded(true)} />
+          <WordView word={word} sentence={sentence} storyId={storyId} detailed={detailed} onMore={() => setExpanded(true)} />
         ) : (
           <SentenceView sentence={sentence} active={word} onWord={onWord} onPlayFrom={onPlayFrom} />
         )}
@@ -236,14 +197,12 @@ export function LookupPanel({
 function WordView({
   word,
   sentence,
-  rest,
   storyId,
   detailed,
   onMore,
 }: {
   word: Word
   sentence: Sentence
-  rest: string
   storyId?: string
   detailed: boolean
   onMore: () => void
@@ -258,46 +217,42 @@ function WordView({
     setSel(0)
     setError(null)
     let live = true
-    findResults(word, rest).then(
+    findResults(word).then(
       (r) => live && setResults(r),
       (e) => live && setError(offlineMessage(e)),
     )
     return () => {
       live = false
     }
-  }, [word, rest])
+  }, [word])
 
   const key = lemmaKey(word)
   const isKnown = known.value.get(key)?.status === 'known'
   const current = results?.[sel]
   const ctx = { sentence: sentenceText(sentence), sentenceEn: sentence.en, surface: word.s, storyId }
-  const reading = word.r ?? toHiragana(word.s)
   const chain = breakdownChain(word)
+  const other = word.sp !== undefined ? sentence.w[word.sp] : undefined
 
   return (
     <div class="word-view">
-      <div class="lp-surface" lang="ja">
+      <div class="lp-surface" lang="nl">
         <span class="popup-surface">{word.s}</span>
-        {word.r && <span class="muted"> · {word.r}</span>}
-        <span class="romaji"> {toRomaji(word.pr ?? reading)}</span>
+        {other && (
+          <span class="muted">
+            {' '}
+            … {other.s}
+          </span>
+        )}
+        {word.b && word.b.toLowerCase() !== word.s.toLowerCase() && <span class="muted"> → {word.b}</span>}
       </div>
 
-      {word.g &&
+      {word.f &&
         (detailed ? (
           <div class="breakdown">
-            <div class="section-label">Grammar breakdown</div>
+            <div class="section-label">What this form is</div>
             <ol>
-              {word.g.map((s) => (
+              {word.f.map((s) => (
                 <li>
-                  <span class="bd-part" lang="ja">
-                    {s.s}
-                  </span>
-                  {s.b && (
-                    <span class="muted small" lang="ja">
-                      {' '}
-                      ({s.b})
-                    </span>
-                  )}
                   <span class="bd-label">{s.l}</span>
                   {s.g && (
                     <button class="link small" onClick={() => navigate(`/grammar/${s.g}`)}>
@@ -308,25 +263,32 @@ function WordView({
               ))}
             </ol>
           </div>
-        ) : (
+        ) : chain.length ? (
           <div class="bd-chain">
             {chain.map((c, i) => (
               <>
                 {i > 0 && <span class="muted"> + </span>}
-                <span lang={i === 0 ? 'ja' : undefined} class={i === 0 ? 'bd-base' : ''}>
+                <span lang={i === 0 ? 'nl' : undefined} class={i === 0 ? 'bd-base' : ''}>
                   {c}
                 </span>
               </>
             ))}
           </div>
-        ))}
-      {!word.g && word.t && (
+        ) : null)}
+      {word.t && (detailed || !word.f) && (
         <div class="grammar-links">
-          {word.t.map((g) => (
-            <button class="chip small" onClick={() => navigate(`/grammar/${g}`)}>
-              <Icon name="grammar" size={14} /> {grammarTitle(g) ?? g}
-            </button>
-          ))}
+          {word.t
+            .filter((g) => !word.f?.some((s) => s.g === g) || !detailed)
+            .map((g) => (
+              <button class="chip small" onClick={() => navigate(`/grammar/${g}`)}>
+                <Icon name="grammar" size={14} /> {grammarTitle(g) ?? g}
+              </button>
+            ))}
+        </div>
+      )}
+      {word.x && (
+        <div class="story-meaning">
+          <span class="badge">Expression</span> <b lang="nl">{word.x.b}</b> {word.x.h && <span>— {word.x.h}</span>}
         </div>
       )}
 
@@ -337,25 +299,25 @@ function WordView({
           <span class="badge">{word.p === 'name' ? 'Name' : 'In this story'}</span> {word.m}
         </div>
       )}
-      {!word.m && word.p === 'name' && results && !results.some((r) => !r.part) && (
+      {!word.m && word.p === 'name' && results && !results.length && (
         <div class="story-meaning">
-          <span class="badge">Name</span> {word.ps ? 'A person’s name.' : 'A proper noun (name of a person, place or thing).'}
+          <span class="badge">Name</span> A proper noun (the name of a person, place or thing).
         </div>
       )}
       {results && results.length === 0 && !word.m && word.p !== 'name' && <div class="muted">No dictionary entry found.</div>}
-      {results?.[0]?.part && <div class="muted small">Not in the dictionary as one word. Its parts:</div>}
+      {results?.[0]?.part && <div class="muted small">Not in the dictionary as one word. A compound of:</div>}
       {word.m && results && results.length > 0 && <div class="muted small">Dictionary:</div>}
       {results && results.length > 1 && (
         <div class="result-tabs" role="tablist">
           {results.map((r, i) => (
-            <button role="tab" aria-selected={i === sel} class={`chip small ${i === sel ? 'on' : ''}`} onClick={() => setSel(i)} lang="ja">
+            <button role="tab" aria-selected={i === sel} class={`chip small ${i === sel ? 'on' : ''}`} onClick={() => setSel(i)} lang="nl">
               {r.label}
               {results.filter((x) => x.label === r.label).length > 1 && <sup>{results.filter((x, j) => x.label === r.label && j <= i).length}</sup>}
             </button>
           ))}
         </div>
       )}
-      {current && <EntryView entry={current.entry} reading={current.reading} ctx={ctx} compact={!detailed} />}
+      {current && <EntryView entry={current.entry} ctx={ctx} compact={!detailed} form={current.form} />}
 
       {detailed ? (
         <div class="popup-footer">
@@ -363,9 +325,6 @@ function WordView({
             <input type="checkbox" checked={isKnown} onChange={() => setKnown(key, isKnown ? null : 'known')} />
             <span>I know this word</span>
           </label>
-          <a class="link small" href={`https://jisho.org/search/${encodeURIComponent(word.b ?? word.s)}`} target="_blank" rel="noopener noreferrer">
-            Jisho <Icon name="external" size={12} />
-          </a>
         </div>
       ) : (
         <button class="btn small ghost lp-more" onClick={onMore}>
@@ -388,12 +347,10 @@ async function sentenceGlosses(sentence: Sentence): Promise<Gloss[]> {
   return Promise.all(
     sentence.w.map(async (word, wi): Promise<Gloss | null> => {
       if (!isLookupWord(word)) return null
-      // Particles and auxiliaries: the grammar point says more than a dictionary gloss
-      const grammar = (word.p === 'prt' || word.p === 'aux') && word.t?.map(grammarTitle).find(Boolean)
-      if (grammar) return { wi, word, gloss: grammar }
       if (word.m) return { wi, word, gloss: word.m }
-      const hit = await dictionary.bestEntry(word).catch(() => undefined)
-      return { wi, word, gloss: hit ? shortGloss(hit.entry, hit.reading) : word.p === 'name' ? '(name)' : undefined }
+      if (word.h) return { wi, word, gloss: word.h }
+      const entry = word.e !== undefined ? await dictionary.entry(word.e).catch(() => undefined) : undefined
+      return { wi, word, gloss: entry ? shortGloss(entry) : word.p === 'name' ? '(name)' : undefined }
     }),
   ).then((gs) => gs.filter((g): g is Gloss => !!g))
 }
@@ -435,7 +392,7 @@ function SentenceView({
   return (
     <div class="sentence-view">
       <div class="lp-actions">
-        <button class="chip small" onClick={() => speak(text.replace(/[「」『』]/g, ''))}>
+        <button class="chip small" onClick={() => speak(text)}>
           <Icon name="volume" size={14} /> Listen
         </button>
         {onPlayFrom && (
@@ -462,9 +419,9 @@ function SentenceView({
             return (
               <li>
                 <button class={`gloss-row ${word === active ? 'on' : ''}`} onClick={() => onWord(wi)}>
-                  <span class="gl-word" lang="ja">
+                  <span class="gl-word" lang="nl">
                     {word.s}
-                    {word.r && word.r !== word.s && <span class="gl-reading">{word.r}</span>}
+                    {word.b && word.b.toLowerCase() !== word.s.toLowerCase() && <span class="gl-reading">{word.b}</span>}
                   </span>
                   <span class="gl-meaning">
                     {gloss ?? <span class="muted">—</span>}

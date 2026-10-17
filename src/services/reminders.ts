@@ -66,8 +66,8 @@ export function scheduleInAppReminder() {
     if (!a || (a.seconds < 60 && !a.stories)) {
       const reg = await navigator.serviceWorker?.ready.catch(() => null)
       const opts = { body: 'A few minutes of reading keeps your streak going.', icon: 'icons/icon-192.png', tag: 'reading-reminder' }
-      if (reg) reg.showNotification('読む時間です — time to read!', opts)
-      else new Notification('読む時間です — time to read!', opts)
+      if (reg) reg.showNotification('Tijd om te lezen — time to read!', opts)
+      else new Notification('Tijd om te lezen — time to read!', opts)
     }
     scheduleInAppReminder()
   }, at.getTime() - Date.now())
@@ -83,19 +83,19 @@ export function downloadIcs() {
   const ics = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//JP Reading//Reminder//EN',
+    'PRODID:-//NL Reading//Reminder//EN',
     'BEGIN:VEVENT',
-    `UID:jp-reading-reminder-${Date.now()}@jp-reading`,
+    `UID:nl-reading-reminder-${Date.now()}@nl-reading`,
     `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '')}`,
     `DTSTART:${local}`,
     'DURATION:PT15M',
     'RRULE:FREQ=DAILY',
-    'SUMMARY:読む時間 — Japanese reading',
-    `DESCRIPTION:Read a story in JP Reading: ${url}`,
+    'SUMMARY:Lezen — Dutch reading',
+    `DESCRIPTION:Read a story in NL Reading: ${url}`,
     `URL:${url}`,
     'BEGIN:VALARM',
     'ACTION:DISPLAY',
-    'DESCRIPTION:Time to read Japanese',
+    'DESCRIPTION:Time to read some Dutch',
     'TRIGGER:PT0M',
     'END:VALARM',
     'END:VEVENT',
@@ -103,7 +103,7 @@ export function downloadIcs() {
   ].join('\r\n')
   const a = document.createElement('a')
   a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }))
-  a.download = 'jp-reading-reminder.ics'
+  a.download = 'nl-reading-reminder.ics'
   a.click()
   URL.revokeObjectURL(a.href)
 }

@@ -13,7 +13,7 @@ keywords:
   - houden|to keep (a promise)
   - trouwen|to get married
   - uitleggen|to explain
-  - wegvegen|to wipe away
+  - huilen|to cry
   - ineens|suddenly
   - het kastje|small cabinet
 names:

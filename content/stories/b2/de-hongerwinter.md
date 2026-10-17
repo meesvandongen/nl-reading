@@ -30,6 +30,8 @@ names:
   - Operatie Manna|Operation Manna (British food drops over the western Netherlands, 1945)
   - Chowhound|Chowhound (code name of the American food drops, 1945)
   - Bijbel|the Bible
+glosses:
+  - eipoeder|powdered egg, dried egg
 ---
 
 ## Een vraag voor school
@@ -109,8 +111,8 @@ Noor knikte en drukte op de opnameknop.
 > "Not everyone was so lucky."
 "Onze buurman, meneer De Vries, is in februari van de honger omgekomen."
 > "Our neighbour, Mr De Vries, died of hunger in February."
-"Vooral ouderen en kleine kinderen bezweken, en soms waren er niet eens genoeg doodskisten."
-> "It was mainly old people and small children who died, and sometimes there weren't even enough coffins."
+"Vooral ouderen en zieken bezweken, en soms waren er niet eens genoeg doodskisten."
+> "It was mainly old people and the sick who died, and sometimes there weren't even enough coffins."
 "Ik heb later gelezen dat er in die winter zo'n twintigduizend mensen zijn gestorven."
 > "I read later that around twenty thousand people died that winter."
 
@@ -120,8 +122,8 @@ Noor knikte en drukte op de opnameknop.
 > "And how did it end?" Noor asked softly.
 Het gezicht van oma klaarde op.
 > Grandma's face brightened.
-"Eind april hoorden we op een ochtend een enorm gebrom boven de stad."
-> "At the end of April, one morning, we heard an enormous droning above the city."
+"Eind april hoorden we op een zondag een enorm gebrom boven de stad."
+> "At the end of April, one Sunday, we heard an enormous droning above the city."
 "Honderden Engelse bommenwerpers vlogen zo laag over de huizen dat je de piloten bijna kon zien zwaaien, maar ze gooiden geen bommen."
 > "Hundreds of British bombers flew so low over the houses that you could almost see the pilots waving, but they didn't drop any bombs."
 "Ze gooiden voedsel: meel, chocolade, eipoeder, blikken vlees."

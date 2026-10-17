@@ -51,6 +51,16 @@ names:
   - Bijbel|the Bible
   - Rampjaar|Disaster Year (1672)
   - Verlichting|the Enlightenment
+  - "Deus sive Natura|Deus sive Natura (Latin: God, or Nature)"
+glosses:
+  - "cherem|cherem (Hebrew: ban, expulsion from the Jewish community)"
+  - ellen|ells (old measure of length, about 70 cm)
+  - "rouwig|sorry, regretful (ergens niet rouwig om zijn: not to mind something)"
+  - uiteenzetting|exposition, explanation
+  - ultimi|last, lowest (Latin)
+  - barbarorum|of the barbarians (Latin)
+  - spinozist|Spinozist, follower of Spinoza
+  - romantici|Romantics (writers and thinkers of Romanticism)
 ---
 
 ## Een jongen van Vlooienburg
@@ -120,8 +130,8 @@ Een jaar later sloeg hij een aanbod af om hoogleraar te worden in Heidelberg, ui
 
 Spinoza stierf op 21 februari 1677 in Den Haag, vierenveertig jaar oud, aan een longziekte die mogelijk werd verergerd door het glasstof dat hij jarenlang had ingeademd.
 > Spinoza died in The Hague on 21 February 1677, at the age of forty-four, of a lung disease that may have been aggravated by the glass dust he had inhaled for years.
-Nog in datzelfde jaar gaven zijn vrienden zijn nagelaten werken uit, waaronder het boek waaraan hij het grootste deel van zijn leven had gewerkt: de Ethica.
-> In that same year his friends published the works he had left behind, among them the book he had worked on for most of his life: the Ethics.
+Nog in datzelfde jaar gaven zijn vrienden zijn nagelaten werken uit, waaronder het boek waaraan hij zo'n vijftien jaar had gewerkt: de Ethica.
+> In that same year his friends published the works he had left behind, among them the book he had worked on for some fifteen years: the Ethics.
 
 Het is een merkwaardig boek, opgebouwd als een meetkundig betoog, met definities, axioma's en stellingen die stap voor stap worden bewezen.
 > It is a curious book, constructed like a geometrical argument, with definitions, axioms and propositions that are proved step by step.

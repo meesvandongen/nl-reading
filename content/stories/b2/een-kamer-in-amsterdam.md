@@ -103,8 +103,8 @@ Als ze zich mooier voordeed dan ze was, zou ze toch binnen een week door de mand
 Floris grinnikte.
 > Floris chuckled.
 
-Toen stelde Bart een laatste vraag, die hij aan iedereen stelde en waar niemand iets van begreep.
-> Then Bart asked one last question, which he asked everyone and which nobody understood.
+Toen kwam Bart met een laatste vraag, die hij aan iedereen stelde en waar niemand iets van begreep.
+> Then Bart came up with one last question, which he asked everyone and which nobody could make sense of.
 "Wanneer ben je jarig?"
 > "When is your birthday?"
 "Op veertien maart," zei Lieke.

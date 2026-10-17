@@ -78,7 +78,7 @@ Ze had zelf twee kleine broertjes.
 
 Na de pizza liep Fenna naar de keuken.
 > After the pizza, Fenna walked to the kitchen.
-Ze opende de vriezer en pakte iets.
+Ze opende de vriezer en haalde er iets uit.
 > She opened the freezer and took something out.
 Even later kwam ze terug met twee kommen.
 > A little later she came back with two bowls.
@@ -129,8 +129,8 @@ Ze lagen doodstil onder een deken.
 > They lay dead still under a blanket.
 Na vijf minuten begon Julia te gapen.
 > After five minutes, Julia started to yawn.
-Na tien minuten hoorde Fenna alleen nog zacht ademen.
-> After ten minutes, Fenna could only hear soft breathing.
+Na tien minuten hoorde Fenna ze alleen nog zacht ademen.
+> After ten minutes, all Fenna could hear was the two of them breathing softly.
 Om kwart over acht sliepen ze allebei.
 > At a quarter past eight, they were both asleep.
 Fenna droeg Julia naar boven, en Sem liep half slapend achter haar aan.

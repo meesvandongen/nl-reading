@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'preact/hooks'
 import type { StoryMeta } from '../lib/types'
-import { CATEGORIES, LEVELS, levelInfo } from '../lib/levels'
+import { CATEGORIES, LEVELS, LEVEL_HINTS, levelInfo } from '../lib/levels'
 import { library, libraryError, seriesProgress } from '../services/library'
 import { customTexts, progress, cards } from '../state/db'
 import { settings, updateSettings } from '../state/settings'
@@ -146,7 +146,7 @@ export function LibraryPage() {
       <header class="home-head">
         <div>
           <h1 class="brand">
-            <span lang="ja">読む読む</span> <small>JP Reading</small>
+            <span lang="nl">Lees mee</span> <small>NL Reading</small>
           </h1>
         </div>
         <div class="home-stats">
@@ -211,7 +211,7 @@ export function LibraryPage() {
           </div>
         ) : (
           <button class="import-cta" onClick={() => navigate('/import')}>
-            <Icon name="text" /> Paste any Japanese text — a news article, lyrics, a message — and read it with furigana, dictionary and audio.
+            <Icon name="text" /> Paste any Dutch text — a news article, a recipe, a message from your neighbour — and read it with the dictionary, de/het and audio.
           </button>
         )}
       </section>
@@ -233,7 +233,7 @@ export function LibraryPage() {
           </button>
           {LEVELS.map((l) => (
             <button class={`chip ${level === l.id ? 'on' : ''}`} onClick={() => setQuery('level', l.id)}>
-              <i class="dot" style={{ background: l.color }} /> {l.label}
+              <i class="dot" style={{ background: l.color }} title={LEVEL_HINTS[l.id]} /> {l.label}
               <span class="muted small"> {lib.stories.filter((s) => s.level === l.id).length}</span>
             </button>
           ))}
@@ -293,15 +293,15 @@ function LevelProgress({ level }: { level: string }) {
 function Onboarding() {
   return (
     <div class="onboarding card">
-      <h2>ようこそ! Welcome</h2>
-      <p>How much Japanese do you know? We'll recommend stories at your level. You can change this any time.</p>
+      <h2>Welkom! Welcome</h2>
+      <p>How much Dutch do you know? We'll recommend stories at your level. You can change this any time.</p>
       <div class="level-pick">
         {[
-          ['beginner-1', 'Just starting', 'I can read hiragana'],
-          ['beginner-3', 'Beginner', 'Around JLPT N5'],
-          ['elementary', 'Elementary', 'Around JLPT N4'],
-          ['intermediate', 'Intermediate', 'Around JLPT N3'],
-          ['advanced', 'Advanced', 'N2 or above'],
+          ['a1', 'Just starting', 'A1 · I know a few words'],
+          ['a2', 'Beginner', 'A2 · Inburgering level'],
+          ['b1', 'Intermediate', 'B1 · Staatsexamen NT2 I'],
+          ['b2', 'Upper intermediate', 'B2 · Staatsexamen NT2 II'],
+          ['c1', 'Advanced', 'C1 · I read Dutch newspapers'],
         ].map(([id, label, hint]) => (
           <button
             class="level-opt"
@@ -309,8 +309,10 @@ function Onboarding() {
               updateSettings({
                 level: id,
                 onboarded: true,
-                aidScope: id === 'advanced' ? 'jlpt' : 'all',
-                aidJlpt: id === 'advanced' ? 3 : 5,
+                // beginners get meanings above new words
+                glossScope: id === 'a1' || id === 'a2' ? 'level' : 'off',
+                glossLevel: id === 'a1' ? 1 : 2,
+                articleColors: id === 'a1' || id === 'a2',
               })
             }
           >

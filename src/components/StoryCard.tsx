@@ -26,7 +26,7 @@ export function StoryCard({ meta, compact = false }: { meta: StoryMeta; compact?
         </span>
         {series ? (
           <span class="series-tag" title={`Episode ${meta.episode} of ${series.title_en ?? series.title}`}>
-            Ep. {meta.episode} · <span lang="ja">{series.title}</span>
+            Ep. {meta.episode} · <span lang="nl">{series.title}</span>
           </span>
         ) : (
           <span class="muted small">{CATEGORIES[meta.category] ?? meta.category}</span>
@@ -43,11 +43,11 @@ export function StoryCard({ meta, compact = false }: { meta: StoryMeta; compact?
           <Icon name="heart" size={16} fill={!!p?.favorite} />
         </button>
       </div>
-      <h3 lang="ja">{meta.title}</h3>
+      <h3 lang="nl">{meta.title}</h3>
       {meta.title_en && <div class="story-card-en">{meta.title_en}</div>}
       {!compact && meta.summary && <p class="story-card-summary">{meta.summary}</p>}
       <div class="story-card-foot small muted">
-        <span>{meta.chars.toLocaleString()} 字</span>
+        <span>{meta.words.toLocaleString()} words</span>
         {meta.translated && <span title="Has translations">EN</span>}
         {p?.completedAt ? (
           <span class="done-label">

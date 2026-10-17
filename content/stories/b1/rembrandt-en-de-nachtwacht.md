@@ -111,8 +111,8 @@ Op die kopie kunnen we nog zien hoe het schilderij er eerst uitzag.
 
 Nu hangt De Nachtwacht in het Rijksmuseum in Amsterdam, in een eigen zaal.
 > Today The Night Watch hangs in the Rijksmuseum in Amsterdam, in a room of its own.
-Het schilderij is nog steeds bijna vier meter hoog en ruim vier meter breed.
-> The painting is still almost four metres high and more than four metres wide.
+Het schilderij is nog steeds bijna vier meter hoog en ongeveer vierenhalve meter breed.
+> The painting is still almost four metres high and about four and a half metres wide.
 In de Tweede Wereldoorlog werd het opgerold en verstopt, zodat het niet kapot kon gaan.
 > During the Second World War it was rolled up and hidden, so that it couldn't be damaged.
 Elk jaar komen er miljoenen bezoekers naar het museum, en bijna iedereen wil de schutters van Rembrandt zien.

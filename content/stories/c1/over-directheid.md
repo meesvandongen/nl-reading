@@ -25,6 +25,12 @@ names:
   - Gouden Eeuw|Golden Age (the Dutch 17th century)
   - Antwerpen|Antwerp (city in Flanders)
   - Republiek|the Dutch Republic (1588–1795)
+glosses:
+  - expats|expats, people from abroad working in the Netherlands
+  - protestantse|Protestant (from protestants)
+  - verademing|relief, breath of fresh air
+  - quite|quite (English)
+  - interesting|interesting (English)
 ---
 
 ## Recht voor zijn raap
@@ -69,8 +75,8 @@ Wie samen met zijn buren een dijk moet onderhouden, heeft weinig aan beleefde om
 
 Ten slotte is er het gelijkheidsdenken.
 > Finally, there is egalitarianism.
-In een land waar de baas bij zijn voornaam wordt genoemd en de minister-president op de fiets naar zijn werk gaat, is er weinig reden om je woorden in te pakken voor wie boven je staat.
-> In a country where the boss is called by his first name and the prime minister cycles to work, there is little reason to wrap up your words for those above you.
+In een land waar de baas bij zijn voornaam wordt genoemd en de minister-president gewoon op de fiets naar zijn werk kan gaan, is er weinig reden om je woorden in te pakken voor wie boven je staat.
+> In a country where the boss is called by his first name and the prime minister can simply cycle to work, there is little reason to wrap up your words for those above you.
 Directheid is in die lezing een vorm van respect: ik behandel je als een gelijke, die de waarheid best aankan.
 > In that reading, directness is a form of respect: I treat you as an equal, who can perfectly well handle the truth.
 

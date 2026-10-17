@@ -38,12 +38,16 @@ names:
   - Last & Co|Last & Co (the narrator's father-in-law's firm)
   - Artis|Artis (the Amsterdam zoological society, membership a mark of respectability)
   - Den Haag|The Hague
+  - "No|No. (abbreviation of numero: number)"
 glosses:
   - sjaallong|long shawl (French châle long)
   - principaal|principal, client (here someone who sells coffee through a broker)
   - wichtjes|little ones, little children
   - "banket|almond pastry (here: pastry letters spelling a name)"
   - borstrokken|undervests, woollen undershirts
+  - "drommel|deuce, devil (wat drommel: what the deuce)"
+  - koliek|colic, stomach cramps
+  - "ingejaagd|chased into (de wereld injagen: to drive out into the world)"
 ---
 
 ## Eerste hoofdstuk
@@ -57,7 +61,7 @@ Niet alleen dat ik nooit iets schreef wat naar een roman geleek, maar ik houd er
 Sedert jaren vraag ik mij af, waartoe zulke dingen dienen, en ik sta verbaasd over de onbeschaamdheid, waarmede een dichter of romanverteller u iets op de mouw durft spelden, dat nooit gebeurd is, en meestal niet gebeuren kan.
 > For years I have been asking myself what such things are good for, and I am astonished at the impudence with which a poet or a teller of novels dares to palm something off on you that never happened, and usually cannot happen.
 Als ik in mijn vak—ik ben makelaar in koffie, en woon op de Lauriergracht No. 37—aan een principaal—een principaal is iemand die koffie verkoopt—een opgave deed, waarin maar een klein gedeelte der onwaarheden voorkwam, die in gedichten en romans de hoofdzaak uitmaken, zou hij terstond Busselinck & Waterman nemen.
-> If in my line of business—I am a coffee broker, and live at No. 37, Lauriergracht—I gave a principal—a principal is someone who sells coffee—a report containing only a small part of the untruths that make up the main substance of poems and novels, he would at once take on Busselinck & Waterman.
+> If in my line of business—I am a coffee broker, and live at No. 37, Lauriergracht—I gave a principal—a principal is someone who sells coffee—a report containing only a small part of the untruths that make up the main substance of poems and novels, he would at once switch to Busselinck & Waterman.
 Dat zijn ook makelaars in koffie, doch hun adres behoeft ge niet te weten.
 > They are coffee brokers too, but you don't need to know their address.
 Ik pas er dus wel op, dat ik geen romans schrijf, of andere valse opgaven doe.

@@ -5,15 +5,20 @@ import { signal } from '@preact/signals'
 import type { StoryDoc } from '../lib/types'
 
 export interface Card {
-  /** lemma key: "word|reading" */
+  /** the word in lowercase (the lemma) */
   id: string
   word: string
-  reading: string
+  /** de / het for nouns */
+  article?: string
   meaning: string
   entryId?: number
-  jlpt?: number
-  accent?: string
-  /** example sentence (plain Japanese) with the word, and its translation */
+  /** CEFR level 1–6 */
+  level?: number
+  /** Wikimedia Commons recording path */
+  audio?: string
+  /** separable verb prefix, verb forms etc. shown on the back: "liep – gelopen" */
+  forms?: string
+  /** example sentence with the word, and its translation */
   sentence?: string
   sentenceEn?: string
   /** surface form as it appeared in the sentence (for highlighting) */
@@ -48,7 +53,8 @@ export interface Activity {
   date: string // YYYY-MM-DD (local)
   seconds: number
   stories: number
-  chars: number
+  /** words read in finished stories */
+  words: number
   reviews: number
   newCards: number
   storyIds: string[]
@@ -71,7 +77,7 @@ interface Schema extends DBSchema {
 let dbp: Promise<IDBPDatabase<Schema>> | null = null
 export function db() {
   if (!dbp) {
-    dbp = openDB<Schema>('jp-reading', 1, {
+    dbp = openDB<Schema>('nl-reading', 1, {
       upgrade(d) {
         const cards = d.createObjectStore('cards', { keyPath: 'id' })
         cards.createIndex('due', 'due')
@@ -174,12 +180,12 @@ export function today(d = new Date()): string {
 
 export async function logActivity(patch: Partial<Omit<Activity, 'date' | 'storyIds'>> & { storyId?: string }) {
   const date = today()
-  const prev = activity.value.get(date) ?? { date, seconds: 0, stories: 0, chars: 0, reviews: 0, newCards: 0, storyIds: [] }
+  const prev = activity.value.get(date) ?? { date, seconds: 0, stories: 0, words: 0, reviews: 0, newCards: 0, storyIds: [] }
   const next: Activity = {
     ...prev,
     seconds: prev.seconds + (patch.seconds ?? 0),
     stories: prev.stories + (patch.stories ?? 0),
-    chars: prev.chars + (patch.chars ?? 0),
+    words: (prev.words ?? 0) + (patch.words ?? 0),
     reviews: prev.reviews + (patch.reviews ?? 0),
     newCards: prev.newCards + (patch.newCards ?? 0),
     storyIds: patch.storyId && !prev.storyIds.includes(patch.storyId) ? [...prev.storyIds, patch.storyId] : prev.storyIds,
@@ -211,10 +217,10 @@ export async function deleteText(id: string) {
 export async function exportBackup(): Promise<string> {
   const d = await db()
   const data = {
-    app: 'jp-reading',
+    app: 'nl-reading',
     version: 1,
     exported: new Date().toISOString(),
-    settings: JSON.parse(localStorage.getItem('jp-reading:settings') ?? '{}'),
+    settings: JSON.parse(localStorage.getItem('nl-reading:settings') ?? '{}'),
     cards: await d.getAll('cards'),
     progress: await d.getAll('progress'),
     activity: await d.getAll('activity'),
@@ -226,7 +232,7 @@ export async function exportBackup(): Promise<string> {
 
 export async function importBackup(json: string) {
   const data = JSON.parse(json)
-  if (data.app !== 'jp-reading') throw new Error('Not a JP Reading backup file')
+  if (data.app !== 'nl-reading') throw new Error('Not an NL Reading backup file')
   const d = await db()
   const tx = d.transaction(['cards', 'progress', 'activity', 'known', 'texts'], 'readwrite')
   for (const c of data.cards ?? []) await tx.objectStore('cards').put(c)
@@ -235,7 +241,7 @@ export async function importBackup(json: string) {
   for (const k of data.known ?? []) await tx.objectStore('known').put(k)
   for (const t of data.texts ?? []) await tx.objectStore('texts').put(t)
   await tx.done
-  if (data.settings) localStorage.setItem('jp-reading:settings', JSON.stringify(data.settings))
+  if (data.settings) localStorage.setItem('nl-reading:settings', JSON.stringify(data.settings))
 }
 
 export async function clearAll() {

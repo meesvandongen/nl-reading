@@ -41,8 +41,8 @@ Ik ben weer in Zeeland, maar ons huis is er niet meer.
 > I'm back in Zeeland, but our house isn't there anymore.
 Het water heeft alles meegenomen.
 > The water took everything away.
-Het staat nog steeds in de polder, en mijn vader werkt elke dag aan de dijk.
-> It's still standing in the polder, and my father works on the dike every day.
+Er staat nog steeds water in de polder, en mijn vader werkt elke dag aan de dijk.
+> There's still water in the polder, and my father works on the dike every day.
 Ik denk vaak aan de nacht van 1 februari.
 > I often think about the night of 1 February.
 Toen zaten we tot de volgende middag op het dak, in de storm en de kou.

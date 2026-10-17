@@ -1,47 +1,37 @@
 /// <reference lib="webworker" />
-// Tokenizes and analyzes arbitrary Japanese text off the main thread.
+// Analyzes pasted Dutch text off the main thread. Needs the dictionary's form
+// index and lemma table (about 2.7 MB compressed), downloaded once and then
+// served from the service worker's cache.
 
-import * as kuromoji from '@patdx/kuromoji'
-import { analyzeChapters, allWords, type Tokenizer } from '../lib/analyze'
+import { analyzeChapters } from '../lib/analyze'
 import { parsePlainText } from '../lib/text'
-import { Dictionary } from '../lib/dict'
-import type { KToken } from '../lib/types'
+import { EMPTY_LEXICON, parseLexicon, type Lexicon } from '../lib/lexicon'
 
 declare const self: DedicatedWorkerGlobalScope
 
 let base = ''
-let tokenizerP: Promise<Tokenizer> | null = null
-let loaded = 0
-
-async function fetchDictFile(name: string): Promise<ArrayBuffer> {
-  const res = await fetch(`${base}kuromoji/${name}`)
-  if (!res.ok) throw new Error(`Failed to load tokenizer dictionary (${res.status})`)
-  const buf = await res.arrayBuffer()
-  loaded++
-  self.postMessage({ type: 'progress', loaded, total: 12 })
-  const bytes = new Uint8Array(buf)
-  // Some servers transparently decompress .gz files; only gunzip real gzip data.
-  if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
-    const stream = new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))
-    return new Response(stream).arrayBuffer()
-  }
-  return buf
-}
-
-function getTokenizer(): Promise<Tokenizer> {
-  if (!tokenizerP) {
-    tokenizerP = new kuromoji.TokenizerBuilder({
-      loader: { loadArrayBuffer: (url: string) => fetchDictFile(url.split('/').pop()!) },
-    })
-      .build()
-      .then((t) => ({ tokenize: (s: string) => t.tokenize(s) as unknown as KToken[] }))
-    tokenizerP.catch(() => (tokenizerP = null))
-  }
-  return tokenizerP
-}
-
-let dict: Dictionary | null = null
 let dictVersion = ''
+let lexiconP: Promise<Lexicon> | null = null
+
+async function fetchText(name: string, onDone: () => void): Promise<string> {
+  const res = await fetch(`${base}data/dict/${name}?v=${dictVersion}`)
+  if (!res.ok) throw new Error(`Failed to load the dictionary index (${res.status})`)
+  const text = await res.text()
+  onDone()
+  return text
+}
+
+function getLexicon(): Promise<Lexicon> {
+  if (!dictVersion) return Promise.resolve(EMPTY_LEXICON)
+  if (!lexiconP) {
+    let loaded = 0
+    const done = () => self.postMessage({ type: 'progress', loaded: ++loaded, total: 2 })
+    self.postMessage({ type: 'progress', loaded: 0, total: 2 })
+    lexiconP = Promise.all([fetchText('forms.txt', done), fetchText('lemmas.txt', done)]).then(([f, l]) => parseLexicon(f, l))
+    lexiconP.catch(() => (lexiconP = null))
+  }
+  return lexiconP
+}
 
 self.onmessage = async (ev: MessageEvent) => {
   const { id, type } = ev.data
@@ -49,30 +39,13 @@ self.onmessage = async (ev: MessageEvent) => {
     if (type === 'init') {
       base = ev.data.base
       dictVersion = ev.data.dictVersion ?? ''
-      dict = new Dictionary(async (p) => {
-        const r = await fetch(`${base}data/dict/${p}?v=${dictVersion}`)
-        if (!r.ok) throw new Error('dictionary unavailable')
-        return r.json()
-      })
       self.postMessage({ id, ok: true })
       return
     }
     if (type === 'analyze') {
-      const tokenizer = await getTokenizer()
-      const chapters = analyzeChapters(tokenizer, parsePlainText(ev.data.text))
-      if (dict && dictVersion) {
-        try {
-          await dict.annotate(allWords(chapters))
-        } catch {
-          /* offline without dictionary: still usable */
-        }
-      }
+      const lex = await getLexicon()
+      const chapters = analyzeChapters(lex, parsePlainText(ev.data.text))
       self.postMessage({ id, ok: true, result: chapters })
-      return
-    }
-    if (type === 'tokenize') {
-      const tokenizer = await getTokenizer()
-      self.postMessage({ id, ok: true, result: tokenizer.tokenize(ev.data.text) })
     }
   } catch (err) {
     self.postMessage({ id, ok: false, error: (err as Error).message })

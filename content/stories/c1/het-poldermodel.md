@@ -37,6 +37,9 @@ names:
   - Pim Fortuyn|Pim Fortuyn (politician, 1948–2002)
   - Den Haag|The Hague (seat of the Dutch government)
   - Tweede Wereldoorlog|Second World War
+glosses:
+  - zzp'ers|self-employed workers without staff, freelancers (zzp = zelfstandige zonder personeel)
+  - "furore|furore (furore maken: to cause a sensation)"
 ---
 
 ## Een akkoord in Wassenaar
@@ -74,8 +77,8 @@ Direct na de Tweede Wereldoorlog werd de Stichting van de Arbeid opgericht, een 
 > Immediately after the Second World War the Labour Foundation was set up, a consultative body of employers and trade unions.
 In 1950 volgde de Sociaal-Economische Raad, de SER, waarin werkgevers, werknemers en onafhankelijke deskundigen, de zogeheten kroonleden, elk een derde van de zetels bezetten.
 > In 1950 it was followed by the Social and Economic Council, the SER, in which employers, employees and independent experts, the so-called Crown members, each occupy a third of the seats.
-De SER adviseert de regering over sociaal-economische vraagstukken, en wat daar unaniem wordt besloten, legt in Den Haag doorgaans veel gewicht in de schaal.
-> The SER advises the government on social and economic issues, and whatever is decided unanimously there usually carries a lot of weight in The Hague.
+De SER adviseert de regering over sociaal-economische vraagstukken, en een unaniem SER-advies legt in Den Haag doorgaans veel gewicht in de schaal.
+> The SER advises the government on social and economic issues, and a unanimous SER recommendation usually carries a lot of weight in The Hague.
 De gedachte erachter is dat overleg op den duur meer oplevert dan een conflict waarbij beide partijen alleen maar verliezen.
 > The idea behind it is that, in the long run, consultation achieves more than a conflict in which both sides only lose.
 
@@ -127,7 +130,7 @@ Ten slotte is er de kwestie van de democratische controle.
 Akkoorden worden gesloten in vergaderzalen waar de kiezer niet bij is, door organisaties waarvan lang niet iedereen lid is; het aantal vakbondsleden daalt al jaren.
 > Agreements are concluded in meeting rooms where voters are not present, by organisations to which by no means everyone belongs; union membership has been falling for years.
 Bovendien schuiven er vaak dezelfde partijen aan, terwijl groepen als zzp'ers en jongeren aan die tafels nauwelijks vertegenwoordigd zijn.
-> Moreover, it is often the same parties that join in, while groups such as freelancers and young people are hardly represented at those tables.
+> Moreover, it is often the same parties that take a seat at the table, while groups such as freelancers and young people are hardly represented at those tables.
 Pim Fortuyn maakte in 2002 furore met zijn aanval op de "regenten" die volgens hem in achterkamertjes de dienst uitmaakten, en sindsdien is het wantrouwen tegenover dat soort overleg niet meer verdwenen.
 > In 2002 Pim Fortuyn caused a sensation with his attack on the "regents" who, in his view, called the shots in back rooms, and since then distrust of that kind of consultation has never gone away.
 

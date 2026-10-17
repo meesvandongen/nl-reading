@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   // Must match the Worker's name in the Cloudflare dashboard (Workers Builds checks this).
-  "name": "jp-reading",
+  "name": "nl-reading",
   "compatibility_date": "2026-10-01",
   // Static assets only, no Worker script. Routing is hash-based (#/review etc.),
   // so unknown paths should 404 rather than fall back to index.html: a missing

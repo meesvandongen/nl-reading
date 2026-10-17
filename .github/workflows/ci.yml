@@ -32,7 +32,7 @@ jobs:
 
       - run: npm ci
 
-      # Dictionary sources (JMdict, KANJIDIC2, pitch accents, JLPT lists).
+      # Dictionary sources (Wiktionary via kaikki.org, OpenSubtitles frequencies).
       # Refreshed weekly; the build is deterministic for the same sources.
       - name: Week number
         id: week

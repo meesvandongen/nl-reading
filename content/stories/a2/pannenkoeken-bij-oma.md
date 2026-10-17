@@ -23,6 +23,7 @@ names:
   - Bobbie|Bobbie (dog's name)
 glosses:
   - plof|thud, splat
+  - bloem|flour
 ---
 
 Op woensdagmiddag hoeft Mila niet naar school.

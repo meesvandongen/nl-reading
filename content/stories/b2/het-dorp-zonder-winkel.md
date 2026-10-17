@@ -31,6 +31,7 @@ names:
   - Groninger|Groninger (person from Groningen)
 glosses:
   - moi|hi (Groningen greeting)
+  - flyers|flyers, leaflets
 ---
 
 ## De laatste dag

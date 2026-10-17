@@ -4,12 +4,10 @@ import { settings, updateSettings, type ReviewMode } from '../state/settings'
 import { cardStage, isDue, previewInterval, schedule, type Grade } from '../services/srs'
 import { exportCardsTsv, recordReview } from '../services/cards'
 import { speak } from '../services/tts'
-import { toRomaji } from '../lib/kana'
-import { alignFurigana } from '../lib/furigana'
 import { navigate, route } from '../router'
 import { Icon } from '../components/Icon'
-import { JlptBadge, Ruby } from '../components/Badges'
-import { PitchDiagram } from '../components/PitchAccent'
+import { Article, CefrBadge } from '../components/Badges'
+import { PracticePage } from './PracticePage'
 
 function buildQueue(): Card[] {
   const all = [...cards.value.values()]
@@ -24,6 +22,8 @@ function buildQueue(): Card[] {
   return [...due, ...fresh]
 }
 
+const say = (c: Card) => speak(c.word, { recording: c.audio })
+
 export function ReviewPage() {
   const tab = route.value.query.get('tab') ?? 'review'
   return (
@@ -34,12 +34,15 @@ export function ReviewPage() {
           <button class={`tab ${tab === 'review' ? 'on' : ''}`} onClick={() => navigate('/review', { replace: true })}>
             Review
           </button>
+          <button class={`tab ${tab === 'practice' ? 'on' : ''}`} onClick={() => navigate('/review?tab=practice', { replace: true })}>
+            Practice
+          </button>
           <button class={`tab ${tab === 'words' ? 'on' : ''}`} onClick={() => navigate('/review?tab=words', { replace: true })}>
             My words ({cards.value.size})
           </button>
         </div>
       </header>
-      {tab === 'words' ? <WordList /> : <ReviewHome />}
+      {tab === 'words' ? <WordList /> : tab === 'practice' ? <PracticePage /> : <ReviewHome />}
     </div>
   )
 }
@@ -85,9 +88,14 @@ function ReviewHome() {
         <div class="empty">
           <p>No flashcards yet.</p>
           <p class="muted">While reading, tap a word and press ★ to save it. It will show up here with the sentence you found it in.</p>
-          <button class="btn" onClick={() => navigate('/')}>
-            Find something to read
-          </button>
+          <div class="row-inline wrap center">
+            <button class="btn" onClick={() => navigate('/')}>
+              Find something to read
+            </button>
+            <button class="btn ghost" onClick={() => navigate('/review?tab=practice')}>
+              Practise de/het and verbs
+            </button>
+          </div>
         </div>
       ) : (
         <>
@@ -99,9 +107,9 @@ function ReviewHome() {
             <div class="seg-control">
               {(
                 [
-                  ['recognition', 'Read → meaning'],
-                  ['listening', 'Listen → meaning'],
-                  ['production', 'Meaning → word'],
+                  ['recognition', 'Dutch → English'],
+                  ['listening', 'Listen → English'],
+                  ['production', 'English → Dutch'],
                 ] as [ReviewMode, string][]
               ).map(([m, label]) => (
                 <button class={s.reviewMode === m ? 'on' : ''} onClick={() => updateSettings({ reviewMode: m })}>
@@ -110,6 +118,13 @@ function ReviewHome() {
               ))}
             </div>
           </div>
+          <label class="toggle row">
+            <span>
+              Ask de or het for nouns
+              <span class="muted small block">Pick the article before you turn the card</span>
+            </span>
+            <input type="checkbox" checked={s.reviewArticle} onChange={(e) => updateSettings({ reviewArticle: (e.target as HTMLInputElement).checked })} />
+          </label>
           <label class="toggle row">
             <span>Show example sentence on the front</span>
             <input type="checkbox" checked={s.reviewShowSentence} onChange={(e) => updateSettings({ reviewShowSentence: (e.target as HTMLInputElement).checked })} />
@@ -131,13 +146,13 @@ function ReviewHome() {
 }
 
 function Highlight({ sentence, surface }: { sentence: string; surface?: string }) {
-  if (!surface || !sentence.includes(surface)) return <>{sentence}</>
-  const i = sentence.indexOf(surface)
+  const i = surface ? sentence.toLowerCase().indexOf(surface.toLowerCase()) : -1
+  if (i < 0) return <>{sentence}</>
   return (
     <>
       {sentence.slice(0, i)}
-      <mark>{surface}</mark>
-      {sentence.slice(i + surface.length)}
+      <mark>{sentence.slice(i, i + surface!.length)}</mark>
+      {sentence.slice(i + surface!.length)}
     </>
   )
 }
@@ -145,14 +160,17 @@ function Highlight({ sentence, surface }: { sentence: string; surface?: string }
 function Session({ queue: initial, onDone }: { queue: Card[]; onDone: () => void }) {
   const [queue, setQueue] = useState(initial)
   const [flipped, setFlipped] = useState(false)
+  const [guess, setGuess] = useState<string | null>(null)
   const [done, setDone] = useState(0)
   const card = queue[0]
   const mode = settings.value.reviewMode
   const showSentence = settings.value.reviewShowSentence
+  // the article question: nouns with a clear de or het, when the front shows the Dutch word
+  const askArticle = !!card && settings.value.reviewArticle && (card.article === 'de' || card.article === 'het') && mode !== 'production'
 
   useEffect(() => {
     if (!card) return
-    if (mode === 'listening' || settings.value.autoplayCardAudio) speak(card.reading)
+    if (mode === 'listening' || settings.value.autoplayCardAudio) say(card)
   }, [card?.id, mode])
 
   const answer = async (g: Grade) => {
@@ -166,13 +184,20 @@ function Session({ queue: initial, onDone }: { queue: Card[]; onDone: () => void
     if (next.due - Date.now() < 20 * 60 * 1000) rest.push(next)
     setQueue(rest)
     setFlipped(false)
+    setGuess(null)
     setDone((d) => d + 1)
+  }
+
+  const pickArticle = (a: string) => {
+    setGuess(a)
+    setFlipped(true)
   }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return
-      if (e.key === ' ' || e.key === 'Enter') {
+      if (!flipped && askArticle && (e.key === 'd' || e.key === 'h')) pickArticle(e.key === 'd' ? 'de' : 'het')
+      else if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault()
         setFlipped(true)
       } else if (flipped && ['1', '2', '3', '4'].includes(e.key)) {
@@ -196,7 +221,7 @@ function Session({ queue: initial, onDone }: { queue: Card[]; onDone: () => void
       </div>
     )
 
-  const furi = card.word !== card.reading ? (alignFurigana(card.word, card.reading) as [string, string?][]) : undefined
+  const surface = card.surface ?? card.word
   return (
     <div class="session">
       <div class="session-top">
@@ -208,11 +233,11 @@ function Session({ queue: initial, onDone }: { queue: Card[]; onDone: () => void
         </div>
         <span class="small muted">{queue.length} left</span>
       </div>
-      <div class={`flashcard ${flipped ? 'flipped' : ''}`} onClick={() => !flipped && setFlipped(true)}>
+      <div class={`flashcard ${flipped ? 'flipped' : ''}`} onClick={() => !flipped && !askArticle && setFlipped(true)}>
         <div class="fc-front">
           {mode === 'recognition' && (
-            <div class="fc-word" lang="ja">
-              {card.word}
+            <div class="fc-word" lang="nl">
+              {askArticle ? <span class="article-blank">___</span> : <Article a={card.article} />} {card.word}
             </div>
           )}
           {mode === 'listening' && (
@@ -220,7 +245,7 @@ function Session({ queue: initial, onDone }: { queue: Card[]; onDone: () => void
               class="btn ghost big"
               onClick={(e) => {
                 e.stopPropagation()
-                speak(card.reading)
+                say(card)
               }}
             >
               <Icon name="volume" size={32} /> Listen
@@ -228,21 +253,36 @@ function Session({ queue: initial, onDone }: { queue: Card[]; onDone: () => void
           )}
           {mode === 'production' && <div class="fc-meaning big">{card.meaning}</div>}
           {showSentence && card.sentence && mode !== 'production' && (
-            <div class="fc-sentence" lang="ja">
-              {mode === 'listening' ? card.sentence.replace(card.surface ?? card.word, '＿＿') : <Highlight sentence={card.sentence} surface={card.surface ?? card.word} />}
+            <div class="fc-sentence" lang="nl">
+              {mode === 'listening' ? card.sentence.replace(new RegExp(surface.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), '＿＿') : <Highlight sentence={card.sentence} surface={surface} />}
             </div>
           )}
-          {!flipped && <div class="muted small tap-hint">Tap or press space to show the answer</div>}
+          {!flipped && askArticle && (
+            <div class="article-pick">
+              <button class="btn art-btn de" onClick={(e) => (e.stopPropagation(), pickArticle('de'))}>
+                de
+              </button>
+              <button class="btn art-btn het" onClick={(e) => (e.stopPropagation(), pickArticle('het'))}>
+                het
+              </button>
+            </div>
+          )}
+          {!flipped && !askArticle && <div class="muted small tap-hint">Tap or press space to show the answer</div>}
         </div>
         {flipped && (
           <div class="fc-back">
-            <div class="fc-word" lang="ja">
-              <Ruby f={furi} text={card.word} />
+            {guess && (
+              <div class={`article-result ${guess === card.article ? 'right' : 'wrong'}`}>
+                {guess === card.article ? `Yes: ${card.article} ${card.word}` : `Not ${guess}: it's ${card.article} ${card.word}`}
+              </div>
+            )}
+            <div class="fc-word" lang="nl">
+              <Article a={card.article} /> {card.word}
               <button
                 class="icon-btn"
                 onClick={(e) => {
                   e.stopPropagation()
-                  speak(card.reading)
+                  say(card)
                 }}
                 aria-label="Listen"
               >
@@ -250,24 +290,27 @@ function Session({ queue: initial, onDone }: { queue: Card[]; onDone: () => void
               </button>
             </div>
             <div class="fc-reading">
-              <span lang="ja">{card.reading}</span> <span class="romaji">{toRomaji(card.reading)}</span> <JlptBadge level={card.jlpt} />
+              {card.forms && <span class="muted">{card.forms}</span>} <CefrBadge level={card.level} />
             </div>
-            {card.accent && <PitchDiagram reading={card.reading} accent={card.accent} />}
             <div class="fc-meaning">{card.meaning}</div>
             {card.sentence && (
-              <div class="fc-sentence" lang="ja">
-                <Highlight sentence={card.sentence} surface={card.surface ?? card.word} />
+              <div class="fc-sentence" lang="nl">
+                <Highlight sentence={card.sentence} surface={surface} />
                 <button
                   class="icon-btn small"
                   onClick={(e) => {
                     e.stopPropagation()
-                    speak(card.sentence!.replace(/[「」]/g, ''))
+                    speak(card.sentence!)
                   }}
                   aria-label="Play sentence"
                 >
                   <Icon name="volume" size={16} />
                 </button>
-                {card.sentenceEn && <div class="muted small" lang="en">{card.sentenceEn}</div>}
+                {card.sentenceEn && (
+                  <div class="muted small" lang="en">
+                    {card.sentenceEn}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -290,6 +333,10 @@ function Session({ queue: initial, onDone }: { queue: Card[]; onDone: () => void
             </button>
           ))}
         </div>
+      ) : askArticle ? (
+        <button class="btn ghost big" onClick={() => setFlipped(true)}>
+          Skip and show answer
+        </button>
       ) : (
         <button class="btn primary big" onClick={() => setFlipped(true)}>
           Show answer
@@ -304,12 +351,10 @@ function WordList() {
   const [sort, setSort] = useState<'recent' | 'due' | 'az'>('recent')
   const list = useMemo(() => {
     const term = q.trim().toLowerCase()
-    const all = [...cards.value.values()].filter(
-      (c) => !term || c.word.includes(term) || c.reading.includes(term) || c.meaning.toLowerCase().includes(term),
-    )
+    const all = [...cards.value.values()].filter((c) => !term || c.word.toLowerCase().includes(term) || c.meaning.toLowerCase().includes(term))
     if (sort === 'recent') all.sort((a, b) => b.created - a.created)
     if (sort === 'due') all.sort((a, b) => a.due - b.due)
-    if (sort === 'az') all.sort((a, b) => a.reading.localeCompare(b.reading, 'ja'))
+    if (sort === 'az') all.sort((a, b) => a.word.localeCompare(b.word, 'nl'))
     return all
   }, [cards.value, q, sort])
 
@@ -317,7 +362,7 @@ function WordList() {
     const blob = new Blob([exportCardsTsv(list)], { type: 'text/tab-separated-values' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
-    a.download = 'jp-reading-flashcards.txt'
+    a.download = 'nl-reading-flashcards.txt'
     a.click()
     URL.revokeObjectURL(a.href)
   }
@@ -332,30 +377,25 @@ function WordList() {
         <select value={sort} onChange={(e) => setSort((e.target as HTMLSelectElement).value as typeof sort)} aria-label="Sort">
           <option value="recent">Newest</option>
           <option value="due">Due</option>
-          <option value="az">あ→ん</option>
+          <option value="az">A→Z</option>
         </select>
       </div>
       <ul class="word-list">
         {list.map((c) => (
           <li>
             <div class="grow" onClick={() => navigate(`/dictionary?q=${encodeURIComponent(c.word)}`)}>
-              <span class="kw-word" lang="ja">
-                {c.word}
+              <span class="kw-word" lang="nl">
+                <Article a={c.article} /> {c.word}
               </span>{' '}
-              {c.reading !== c.word && (
-                <span class="muted" lang="ja">
-                  {c.reading}
-                </span>
-              )}{' '}
-              <JlptBadge level={c.jlpt} /> <span class={`stage stage-${cardStage(c)}`}>{cardStage(c)}</span>
+              <CefrBadge level={c.level} /> <span class={`stage stage-${cardStage(c)}`}>{cardStage(c)}</span>
               <div class="small">{c.meaning}</div>
               {c.sentence && (
-                <div class="small muted" lang="ja">
+                <div class="small muted" lang="nl">
                   {c.sentence}
                 </div>
               )}
             </div>
-            <button class="icon-btn" aria-label="Listen" onClick={() => speak(c.reading)}>
+            <button class="icon-btn" aria-label="Listen" onClick={() => say(c)}>
               <Icon name="volume" size={18} />
             </button>
             <button

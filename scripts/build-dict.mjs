@@ -494,12 +494,12 @@ async function main() {
     .map((id) => lemmas[id])
     .filter((e) => e.p === 'n' && (e.g === 'de' || e.g === 'het') && !e.po && /^[a-zà-ÿ]+$/.test(e.w) && !e.s.every((s) => (s.t ?? []).some((t) => ['vulgar', 'offensive', 'derogatory', 'slang'].includes(t))))
     .slice(0, 2500)
-    .map((e) => [e.w, e.g, e.s[0].g.slice(0, 60), e.l ?? 0])
+    .map((e) => [e.w, e.g, hintGloss(e, 50), e.l ?? 0])
   const verbs = ranked
     .map((id) => lemmas[id])
     .filter((e) => e.p === 'v' && e.v?.k && !e.v.sep && e.v.pt && e.v.pp && /^[a-z]+$/.test(e.w))
     .slice(0, 200)
-    .map((e) => [e.w, e.v.pt, e.v.ptp ?? '', e.v.pp, e.v.aux ?? 'hebben', e.s[0].g.slice(0, 60), e.l ?? 0])
+    .map((e) => [e.w, e.v.pt, e.v.ptp ?? '', e.v.pp, e.v.aux ?? 'hebben', hintGloss(e, 50), e.l ?? 0])
   writeFileSync(PRACTICE, JSON.stringify({ version: meta.version, nouns, verbs }))
 
   console.log(`dictionary: ${entryCount} entries, ${formCount} forms, ${xIndex.size} English words → ${OUT}`)

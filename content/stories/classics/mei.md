@@ -38,7 +38,7 @@ Een nieuwe lente en een nieuw geluid:
 Ik wil dat dit lied klinkt als het gefluit,
 > I want this song to ring like the whistling
 Dat ik vaak hoorde voor een zomernacht
-> that I often heard before a summer night
+> that I often heard as a summer night came on
 In een oud stadje, langs de watergracht —
 > in an old town, along the canal —
 In huis was 't donker, maar de stille straat

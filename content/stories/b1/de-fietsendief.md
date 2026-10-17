@@ -68,7 +68,7 @@ Dus tilde hij de achterkant van de fiets op en rende hij met de fiets op één w
 
 Bram besloot hem te achtervolgen.
 > Bram decided to chase him.
-De man rende over het plein voor het station en de Damrak op.
+De man rende over het plein voor het station en het Damrak op.
 > The man ran across the square in front of the station and onto the Damrak.
 Bram rende achter hem aan, langs trams, toeristen en een groep Italiaanse scholieren.
 > Bram ran after him, past trams, tourists and a group of Italian schoolchildren.
@@ -86,7 +86,7 @@ Na een paar minuten stond hij stil bij een brug over een gracht.
 Hij kon niet meer.
 > He couldn't go on.
 Bram kwam naast hem staan en moest hard hijgen.
-> Bram came to stand next to him, panting hard.
+> Bram came and stood next to him, panting hard.
 
 "Geef die fiets terug!" zei Bram.
 > "Give that bike back!" said Bram.
@@ -101,8 +101,8 @@ Bram kwam naast hem staan en moest hard hijgen.
 
 De man heette Kees, en hij had een verhaal.
 > The man's name was Kees, and he had a story.
-Hij was de dag ervoor zijn sleutel verloren.
-> He had lost his key the day before.
+Hij was de dag ervoor zijn sleutels verloren.
+> He had lost his keys the day before.
 Daarom had hij die ochtend een kniptang van zijn buurman geleend om zijn eigen slot open te maken.
 > That was why he had borrowed bolt cutters from his neighbour that morning, to open his own lock.
 Hij liet Bram een foto op zijn telefoon zien: Kees met de rode fiets, op een zonnige dag, met een grote lach.

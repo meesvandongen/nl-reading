@@ -60,7 +60,7 @@ Yusuf knikte.
 "Ik heb veertig jaar achter het loket van het postkantoor gestaan," zei ze.
 > "I stood behind the counter at the post office for forty years," she said.
 "Praten kan ik als de beste."
-> "Talking is something I'm very good at."
+> "I can talk with the best of them."
 "Als je wilt, kom ik twee keer per week met je kletsen."
 > "If you like, I'll come and chat with you twice a week."
 "En zeg maar Toos."
@@ -71,7 +71,7 @@ Yusuf knikte.
 Vanaf die dag kwam Toos elke dinsdag en vrijdag om tien uur langs.
 > From that day on, Toos came round every Tuesday and Friday at ten o'clock.
 Ze dronken koffie met één koekje erbij.
-> They drank coffee with one biscuit each.
+> They drank coffee with a single biscuit.
 "Eén koekje bij de koffie, dat is heel Nederlands," legde Toos uit.
 > "One biscuit with your coffee, that's very Dutch," Toos explained.
 Toos verbeterde zijn fouten zonder dat hij zich dom voelde.
@@ -103,7 +103,7 @@ Om acht uur stond Toos al voor de deur, in haar beste jas.
 Ze gaf hem een gevulde koek in een papieren zakje.
 > She gave him an almond-filled biscuit in a paper bag.
 
-Het examen spreken werd op een computer afgenomen.
+Het spreekexamen werd op een computer afgenomen.
 > The speaking exam was taken on a computer.
 Yusuf zette een koptelefoon op en moest vragen beantwoorden in een microfoon.
 > Yusuf put on headphones and had to answer questions into a microphone.
@@ -155,7 +155,7 @@ Hij rende de gang op en belde drie keer achter elkaar aan bij Toos.
 > "Passed!" he shouted.
 "In één keer!"
 > "First time!"
-Toos lachte zo hard dat de buren uit hun ramen keken.
+Toos lachte zo hard dat de buren uit het raam keken.
 > Toos laughed so loudly that the neighbours looked out of their windows.
 "Kom binnen," zei ze.
 > "Come in," she said.

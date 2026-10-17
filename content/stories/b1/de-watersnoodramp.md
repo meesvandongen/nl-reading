@@ -30,6 +30,9 @@ names:
   - Deltawerken|Delta Works (system of dams and barriers)
   - Nederland|the Netherlands
   - Oosterscheldekering|Eastern Scheldt storm surge barrier
+glosses:
+  - gebulder|roar, rumble (of water, wind or guns)
+  - noordwesterstorm|north-westerly storm, a gale from the north-west
 ---
 
 ## De storm
@@ -61,7 +64,7 @@ Midden in de nacht werd Neeltje wakker van een vreemd geluid.
 Het was niet de wind, maar iets anders: een diep, zwaar gebulder.
 > It wasn't the wind, but something else: a deep, heavy roar.
 "Opstaan, het water komt!" riep haar vader beneden.
-> "Get up, the water is coming!" her father shouted downstairs.
+> "Get up, the water is coming!" her father shouted from downstairs.
 Neeltje rende naar de trap.
 > Neeltje ran to the stairs.
 Beneden stond het water al tot aan de tafel.
@@ -125,13 +128,13 @@ Een voor een werden ze in de boot geholpen.
 > One by one they were helped into the boat.
 In de boot zaten al andere mensen uit het dorp, die net als zij urenlang op hun dak hadden gezeten.
 > There were already other people from the village in the boat, who, like them, had been sitting on their roofs for hours.
-Neeltje keek nog één keer om naar haar huis, waarvan alleen het dak nog boven het water uitkwam.
+Neeltje keek nog één keer om naar haar huis, waarvan alleen het dak nog boven het water uitstak.
 > Neeltje looked back one more time at her house, of which only the roof still rose above the water.
 
 Later hoorde ze dat buurman Kodde en zijn vrouw die nacht waren verdronken.
 > Later she heard that neighbour Kodde and his wife had drowned that night.
-Het gezin woonde maandenlang bij een familie in Utrecht, omdat er nog water op het eiland stond.
-> The family lived with a family in Utrecht for months, because there was still water on the island.
+Het gezin woonde maandenlang bij een gastgezin in Utrecht, omdat er nog water op het eiland stond.
+> The family lived with a host family in Utrecht for months, because there was still water on the island.
 Pas in november 1953 werd het laatste gat in de dijken van Schouwen-Duiveland gedicht.
 > It wasn't until November 1953 that the last gap in the dikes of Schouwen-Duiveland was closed.
 

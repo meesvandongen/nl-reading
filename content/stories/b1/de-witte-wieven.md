@@ -64,8 +64,8 @@ Harm verkocht de koe voor een goede prijs.
 > Harm sold the cow for a good price.
 Daarna ging hij met zijn vriend Jan naar de herberg om dat te vieren.
 > Then he went with his friend Jan to the inn to celebrate.
-Ze dronken bier, en de tijd ging snel.
-> They drank beer, and the time went by quickly.
+Ze dronken bier, en de tijd vloog voorbij.
+> They drank beer, and the time flew by.
 Toen ze naar buiten kwamen, was het al donker.
 > When they came outside, it was already dark.
 

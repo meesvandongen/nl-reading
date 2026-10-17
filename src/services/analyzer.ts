@@ -2,7 +2,8 @@ import { signal } from '@preact/signals'
 import type { Chapter } from '../lib/types'
 import { dictMeta } from './dictionary'
 
-export const tokenizerProgress = signal<{ loaded: number; total: number } | null>(null)
+/** Download progress of the word index the analyzer needs (once, then cached). */
+export const indexProgress = signal<{ loaded: number; total: number } | null>(null)
 
 let worker: Worker | null = null
 let seq = 0
@@ -14,7 +15,7 @@ async function getWorker(): Promise<Worker> {
   worker.onmessage = (ev) => {
     const d = ev.data
     if (d.type === 'progress') {
-      tokenizerProgress.value = { loaded: d.loaded, total: d.total }
+      indexProgress.value = { loaded: d.loaded, total: d.total }
       return
     }
     const p = pending.get(d.id)
@@ -42,7 +43,7 @@ function call<T>(w: Worker, msg: Record<string, unknown>): Promise<T> {
   })
 }
 
-/** Tokenize + analyze arbitrary text into chapters of sentences. */
+/** Analyze arbitrary text into chapters of sentences. */
 export async function analyzeText(text: string): Promise<Chapter[]> {
   return call<Chapter[]>(await getWorker(), { type: 'analyze', text })
 }

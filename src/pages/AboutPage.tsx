@@ -13,12 +13,13 @@ export function AboutPage() {
         <div class="topbar-title">About</div>
       </header>
       <h1>
-        <span lang="ja">読む読む</span> JP Reading
+        <span lang="nl">Lees mee</span> · NL Reading
       </h1>
       <p>
-        A free, open-source Japanese reader. Graded stories from Beginner 1 to Master, classic literature, and any text you paste — all with
-        tap-to-look-up dictionary, furigana or romaji, pitch accent, JLPT highlighting, grammar breakdowns, sentence translations, text-to-speech
-        and spaced-repetition flashcards. It runs entirely in your browser and works offline.
+        A free, open-source Dutch reader. Graded stories from A1 to C1 about life in the Netherlands and Flanders, classic Dutch literature, and
+        any text you paste. Tap a word for its meaning, de or het, its dictionary form and its verb forms; separable verbs are recognised even when
+        their parts are far apart (<i lang="nl">Ik bel je morgen op</i> → <i lang="nl">opbellen</i>). Sentence translations, audio, grammar guides and
+        spaced-repetition flashcards. It runs entirely in your browser and works offline.
       </p>
       {lib && (
         <p class="muted">
@@ -28,36 +29,42 @@ export function AboutPage() {
       <h2>Add a story</h2>
       <p>
         Every text is a Markdown file in the <code>content/stories</code> folder of the repository. Add one with a pull request and it appears in the
-        app after the next deploy. See <code>content/README.md</code> for the format.
+        app after the next deploy. See <code>content/README.md</code> for the format and <code>content/STYLE.md</code> for the house style.
       </p>
       <h2>Credits & licenses</h2>
       <ul>
         <li>
-          <b>JMdict</b> and <b>KANJIDIC2</b> — Electronic Dictionary Research and Development Group (EDRDG), CC BY-SA 4.0.{' '}
-          <a href="https://www.edrdg.org/edrdg/licence.html" target="_blank" rel="noopener noreferrer">
-            License
+          <b>Dictionary</b> — the Dutch entries of the English{' '}
+          <a href="https://en.wiktionary.org" target="_blank" rel="noopener noreferrer">
+            Wiktionary
           </a>
+          , extracted by{' '}
+          <a href="https://kaikki.org/dictionary/Dutch/" target="_blank" rel="noopener noreferrer">
+            Wiktextract (kaikki.org)
+          </a>
+          . CC BY-SA 4.0 and GFDL.
         </li>
         <li>
-          <b>Pitch accent</b> — Kanjium data by mifunetoshiro, CC BY-SA 4.0.
+          <b>Recordings</b> of single words — Wikimedia Commons contributors, mostly CC BY-SA; each recording links to its page.
         </li>
         <li>
-          <b>JLPT word lists</b> — based on Jonathan Waller's JLPT resources (tanos.co.uk), CC BY, via elzup/jlpt-word-list.
+          <b>Word frequencies</b> (for the word levels) — OpenSubtitles via{' '}
+          <a href="https://github.com/hermitdave/FrequencyWords" target="_blank" rel="noopener noreferrer">
+            hermitdave/FrequencyWords
+          </a>
+          , CC BY-SA 4.0.
         </li>
         <li>
-          <b>Stroke order</b> — KanjiVG by Ulrich Apel, CC BY-SA 3.0.
+          <b>Classic literature</b> — public domain (Project Gutenberg, DBNL). Spelling modernized.
         </li>
         <li>
-          <b>Tokenizer</b> — kuromoji.js with the IPADIC dictionary (Apache 2.0 / IPADIC license).
-        </li>
-        <li>
-          <b>Classic literature</b> — Aozora Bunko (青空文庫), public domain.
-        </li>
-        <li>
-          <b>Original stories</b> — written for this project, CC BY 4.0.
+          <b>Original stories and grammar articles</b> — written for this project, CC BY 4.0.
         </li>
       </ul>
-      <p class="muted small">Inspired by graded-reader apps such as Yomu Yomu. Not affiliated with them.</p>
+      <p class="muted small">
+        Word levels (A1–C2) are estimated from how common a word is, not from an official list. Inspired by graded-reader apps. Not affiliated with
+        any of them.
+      </p>
     </div>
   )
 }

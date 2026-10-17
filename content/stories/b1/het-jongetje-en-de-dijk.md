@@ -100,10 +100,10 @@ Zijn kleindochter Fleur, die in Amsterdam geschiedenis studeerde, was er ook.
 > His granddaughter Fleur, who was studying history in Amsterdam, was there too.
 Kees vertelde over de Amerikaanse vrouw, en Fleur begon meteen te lachen.
 > Kees told them about the American woman, and Fleur immediately started laughing.
-"Opa, dat verhaal is helemaal niet Nederlands," zei ze.
-> "Grandpa, that story isn't Dutch at all," she said.
-"Het komt uit een Amerikaans boek."
-> "It comes from an American book."
+"Opa, dat is helemaal geen echt Nederlands verhaal," zei ze.
+> "Grandpa, that isn't a real Dutch story at all," she said.
+"Het is beroemd geworden door een Amerikaans boek."
+> "It became famous through an American book."
 
 Ze pakte haar telefoon en las voor.
 > She took out her phone and read aloud.
@@ -122,8 +122,8 @@ Het jongetje heeft daarin niet eens een naam.
 "Mary Mapes Dodge was zelf nog nooit in Nederland geweest toen ze het boek schreef."
 > "Mary Mapes Dodge had never been to the Netherlands herself when she wrote the book."
 
-"Dus dat jongetje is gewoon verzonnen door een Amerikaanse?" vroeg Kees.
-> "So that little boy was just made up by an American?" asked Kees.
+"Dus dat jongetje is gewoon verzonnen?" vroeg Kees.
+> "So that little boy was just made up?" asked Kees.
 "Ja, maar het boek werd enorm populair, en er kwamen steeds meer toeristen die naar hem vroegen," zei Fleur.
 > "Yes, but the book became hugely popular, and more and more tourists came asking about him," said Fleur.
 "Daarom staan er nu toch standbeelden van hem in Nederland: in Spaarndam, in Harlingen en zelfs in Madurodam."
@@ -163,4 +163,4 @@ Linda maakte wel tien foto's.
 Kees ging tevreden weer op zijn bankje zitten.
 > Kees sat back down on his bench, pleased.
 "Zo," dacht hij, "Volendam is ook weer gered."
-> "There," he thought, "Volendam has been saved too."
+> "There," he thought, "Volendam is saved as well."

@@ -29,6 +29,9 @@ names:
   - Ilse Verhoef|Ilse Verhoef (fictional spokesperson)
   - Verhoef|Verhoef (surname)
   - Europa|Europe
+glosses:
+  - "vrijpostig|bold, cheeky (here: no longer shy of people)"
+  - "opdraaien|to bear the cost (opdraaien voor: to foot the bill for)"
 ---
 
 ## Eerste welpen in ruim honderd jaar
@@ -44,8 +47,8 @@ In de negentiende eeuw werd de wolf in Nederland uitgeroeid.
 > In the nineteenth century the wolf was wiped out in the Netherlands.
 Pas in 2015 werd er voor het eerst weer een wilde wolf in ons land gezien: een jong dier dat vanuit Duitsland was komen aanlopen.
 > It was not until 2015 that a wild wolf was seen in our country again: a young animal that had wandered over from Germany.
-In 2018 vestigde zich een vrouwtje op de Veluwe, en een jaar later kreeg ze gezelschap van een mannetje.
-> In 2018 a female settled on the Veluwe, and a year later she was joined by a male.
+In 2018 vestigde zich een vrouwtje op de Veluwe, en al snel kreeg ze gezelschap van een mannetje.
+> In 2018 a female settled on the Veluwe, and she was soon joined by a male.
 In 2019 werden er welpen geboren, de eerste in Nederland in meer dan honderd jaar.
 > In 2019 pups were born, the first in the Netherlands in more than a hundred years.
 Sindsdien is het aantal wolven gestaag gegroeid, en ook buiten de Veluwe hebben zich dieren gevestigd.
@@ -82,7 +85,7 @@ Ecologen zien de terugkeer van de wolf juist als een teken dat de Nederlandse na
 "De wolf hoort hier gewoon thuis," zegt ecoloog Marieke Bos, die al jaren onderzoek doet naar grote roofdieren.
 > "The wolf simply belongs here," says ecologist Marieke Bos, who has been researching large predators for years.
 "Hij eet vooral herten, reeën en wilde zwijnen, en daarmee draagt hij bij aan een natuurlijk evenwicht."
-> "It mainly eats deer, roe deer and wild boar, and in doing so it contributes to a natural balance."
+> "It mainly eats red deer, roe deer and wild boar, and in doing so it contributes to a natural balance."
 Volgens Bos is er voor wandelaars en fietsers geen reden tot paniek.
 > According to Bos, there is no reason for walkers and cyclists to panic.
 "Wolven gaan mensen in de regel uit de weg."
@@ -109,7 +112,7 @@ Boerenorganisaties vinden dat er sneller moet kunnen worden ingegrepen, terwijl 
 > Farmers' organisations believe it should be possible to intervene more quickly, while nature organisations warn that shooting does not solve the problem.
 
 De provincie Gelderland zit daardoor tussen twee vuren.
-> As a result, the province of Gelderland is caught between two fires.
+> As a result, the province of Gelderland is caught in the middle.
 "We nemen de zorgen van de boeren uiterst serieus," zegt woordvoerder Ilse Verhoef.
 > "We take the farmers' concerns extremely seriously," says spokesperson Ilse Verhoef.
 "Tegelijkertijd zijn we gebonden aan Europese regels."

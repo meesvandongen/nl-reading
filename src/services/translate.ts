@@ -18,7 +18,7 @@ interface TranslatorStatic {
   }): Promise<TranslatorInstance>
 }
 
-const LANGS = { sourceLanguage: 'ja', targetLanguage: 'en' }
+const LANGS = { sourceLanguage: 'nl', targetLanguage: 'en' }
 
 function api(): TranslatorStatic | undefined {
   return (globalThis as { Translator?: TranslatorStatic }).Translator
@@ -45,7 +45,7 @@ export function cachedTranslation(text: string): string | undefined {
 }
 
 /**
- * Translate Japanese to English on the device. When the language model still has to be
+ * Translate Dutch to English on the device. When the language model still has to be
  * downloaded this must be called from a user gesture; `onProgress` reports 0..1.
  */
 export async function translateOnDevice(text: string, onProgress?: (p: number) => void): Promise<string> {
@@ -69,7 +69,7 @@ export async function translateOnDevice(text: string, onProgress?: (p: number) =
 export function webTranslators(text: string): { name: string; url: string }[] {
   const q = encodeURIComponent(text)
   return [
-    { name: 'Google Translate', url: `https://translate.google.com/?sl=ja&tl=en&op=translate&text=${q}` },
-    { name: 'DeepL', url: `https://www.deepl.com/translator#ja/en/${q.replace(/%2F/g, '%5C%2F')}` },
+    { name: 'Google Translate', url: `https://translate.google.com/?sl=nl&tl=en&op=translate&text=${q}` },
+    { name: 'DeepL', url: `https://www.deepl.com/translator#nl/en/${q.replace(/%2F/g, '%5C%2F')}` },
   ]
 }

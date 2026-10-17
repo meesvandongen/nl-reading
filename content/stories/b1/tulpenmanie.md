@@ -38,8 +38,8 @@ Hij zat de hele dag achter zijn weefgetouw om linnen te weven.
 > He sat at his loom all day, weaving linen.
 Hij verdiende net genoeg om brood en turf te kopen voor zijn vrouw Grietje en hun drie kinderen.
 > He earned just enough to buy bread and peat for his wife Grietje and their three children.
-Maar zijn buurman Jacob, die ook wever was geweest, had zijn weefgetouw verkocht en liep nu in een mantel met een bontkraag.
-> But his neighbour Jacob, who had also been a weaver, had sold his loom and was now walking around in a new cloak with a fur collar.
+Maar zijn buurman Jacob, die ook wever was geweest, had zijn weefgetouw verkocht en liep nu rond in een mantel met een bontkraag.
+> But his neighbour Jacob, who had also been a weaver, had sold his loom and was now walking around in a cloak with a fur collar.
 "Hoe kan dat?" vroeg Pieter op een avond.
 > "How is that possible?" Pieter asked one evening.
 "Tulpen," zei Jacob met een knipoog.
@@ -140,7 +140,7 @@ Historici denken nu dat de tulpenmanie minder mensen arm heeft gemaakt dan de ve
 Pieter ging weer achter zijn weefgetouw zitten.
 > Pieter sat down at his loom again.
 In april bloeide er bij de deur één gewone rode tulp, die Grietje in de herfst had geplant.
-> In April, one ordinary red tulip bloomed by the door, which Grietje had planted in the autumn.
+> In April, by the door, a single ordinary red tulip that Grietje had planted in the autumn came into bloom.
 "Kijk," zei ze.
 > "Look," she said.
 "Hij is prachtig, en hij heeft ons niets gekost."

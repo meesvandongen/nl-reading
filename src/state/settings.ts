@@ -1,40 +1,39 @@
 import { effect, signal } from '@preact/signals'
 
 export type Theme = 'system' | 'light' | 'dark' | 'sepia'
-export type KanjiAid = 'furigana' | 'romaji' | 'none'
-export type KanaAid = 'romaji' | 'none'
-export type AidScope = 'all' | 'unknown' | 'jlpt'
+export type GlossScope = 'off' | 'unknown' | 'level' | 'all'
 export type TranslationMode = 'off' | 'sentence' | 'paragraph'
-export type FontFamily = 'sans' | 'serif' | 'rounded' | 'handwriting' | 'system'
+export type FontFamily = 'serif' | 'sans' | 'legible' | 'system'
 export type ReviewMode = 'recognition' | 'listening' | 'production'
 
 export interface Settings {
   theme: Theme
-  /** reading aid shown over kanji */
-  kanjiAid: KanjiAid
-  /** reading aid shown over kana */
-  kanaAid: KanaAid
-  /** which words get reading aids */
-  aidScope: AidScope
-  /** with aidScope = 'jlpt': hide aids for words at this JLPT level or easier (5 = N5) */
-  aidJlpt: number
+  /** English meaning in small print above words */
+  glossScope: GlossScope
+  /** with glossScope = 'level': show for words above this CEFR level (1 = A1) */
+  glossLevel: number
   translation: TranslationMode
-  pitchAccent: boolean
-  jlptHighlight: boolean
+  /** colour nouns by article: de / het */
+  articleColors: boolean
+  /** underline words by CEFR level */
+  levelHighlight: boolean
   highlightSaved: boolean
   fontFamily: FontFamily
   fontSize: number
   lineHeight: number
-  vertical: boolean
   /** TTS */
   voice: string
   rate: number
   autoScroll: boolean
+  /** play native-speaker recordings (Wikimedia Commons) for single words when there is one */
+  recordings: boolean
   /** flashcards */
   newPerDay: number
   reviewMode: ReviewMode
   reviewShowSentence: boolean
   autoplayCardAudio: boolean
+  /** ask de or het on noun cards */
+  reviewArticle: boolean
   /** goals */
   weeklyGoal: number
   goalUnit: 'stories' | 'minutes'
@@ -52,37 +51,36 @@ export interface Settings {
 
 const DEFAULTS: Settings = {
   theme: 'system',
-  kanjiAid: 'furigana',
-  kanaAid: 'none',
-  aidScope: 'all',
-  aidJlpt: 5,
+  glossScope: 'off',
+  glossLevel: 2,
   translation: 'off',
-  pitchAccent: false,
-  jlptHighlight: false,
+  articleColors: false,
+  levelHighlight: false,
   highlightSaved: true,
-  fontFamily: 'sans',
-  fontSize: 22,
-  lineHeight: 2.1,
-  vertical: false,
+  fontFamily: 'serif',
+  fontSize: 20,
+  lineHeight: 1.75,
   voice: '',
-  rate: 1,
+  rate: 0.9,
   autoScroll: true,
+  recordings: true,
   newPerDay: 15,
   reviewMode: 'recognition',
   reviewShowSentence: true,
   autoplayCardAudio: false,
+  reviewArticle: true,
   weeklyGoal: 3,
   goalUnit: 'stories',
   reminderEnabled: false,
   reminderTime: '20:00',
-  level: 'beginner-1',
+  level: 'a1',
   onboarded: false,
   libraryLevel: 'all',
   libraryCategory: 'all',
   libraryFilter: 'all',
 }
 
-const KEY = 'jp-reading:settings'
+const KEY = 'nl-reading:settings'
 
 function load(): Settings {
   try {
@@ -120,18 +118,17 @@ function applyTheme() {
   const resolved = t === 'system' ? (media?.matches ? 'dark' : 'light') : t
   document.documentElement.dataset.theme = resolved
   const meta = document.querySelectorAll('meta[name="theme-color"]')
-  const color = resolved === 'dark' ? '#1b1a19' : resolved === 'sepia' ? '#f3e9d7' : '#c0392b'
+  const color = resolved === 'dark' ? '#16191f' : resolved === 'sepia' ? '#f3e9d7' : '#e8590c'
   meta.forEach((m) => m.setAttribute('content', color))
 }
 effect(applyTheme)
 media?.addEventListener('change', applyTheme)
 
 export const FONTS: Record<FontFamily, { label: string; css: string; google?: string }> = {
-  sans: { label: 'Gothic', css: "'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif", google: 'Noto+Sans+JP:wght@400;700' },
-  serif: { label: 'Mincho', css: "'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif", google: 'Noto+Serif+JP:wght@400;700' },
-  rounded: { label: 'Rounded', css: "'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif", google: 'Zen+Maru+Gothic:wght@400;700' },
-  handwriting: { label: 'Textbook', css: "'Klee One', 'UD Digi Kyokasho N', cursive", google: 'Klee+One:wght@400;600' },
-  system: { label: 'System', css: "system-ui, -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif" },
+  serif: { label: 'Serif', css: "'Literata', Georgia, 'Times New Roman', serif", google: 'Literata:opsz,wght@7..72,400;7..72,600' },
+  sans: { label: 'Sans', css: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif", google: 'Inter:wght@400;600' },
+  legible: { label: 'Legible', css: "'Atkinson Hyperlegible', Verdana, sans-serif", google: 'Atkinson+Hyperlegible:wght@400;700' },
+  system: { label: 'System', css: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" },
 }
 
 const loadedFonts = new Set<string>()

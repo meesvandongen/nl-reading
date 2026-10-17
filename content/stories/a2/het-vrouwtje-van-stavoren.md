@@ -72,8 +72,8 @@ Toen gooiden de mannen al het graan in de zee.
 
 ## Deel 3
 
-Een paar dagen later maakte de kok een vis schoon.
-> A few days later the cook was cleaning a fish.
+Een paar dagen later maakte haar kok een vis schoon.
+> A few days later her cook was cleaning a fish.
 In de buik van de vis vond hij een gouden ring.
 > In the belly of the fish he found a gold ring.
 Het was de ring van de weduwe.
@@ -89,7 +89,7 @@ En het graan in de zee?
 > And the grain in the sea?
 Het groeide, maar het gaf nooit nieuw graan.
 > It grew, but it never produced new grain.
-Rond de planten kwam steeds meer zand.
+Rond de planten bleef steeds meer zand liggen.
 > More and more sand gathered around the plants.
 Zo ontstond er een grote zandbank voor de haven: het Vrouwenzand.
 > That is how a big sandbank formed in front of the harbour: the Vrouwenzand.

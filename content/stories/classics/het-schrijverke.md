@@ -59,6 +59,9 @@ glosses:
   - lesse|lesson (old form of les)
   - nochte|nor
   - Name|name (old form of naam)
+  - "twintigen|twenty (met twintigen zijn: to be twenty in number)"
+  - et|it (spoken form of het, written 'et)
+  - "waar|were (here: old form of ware, 'as if it were')"
 ---
 
 O krinklende winklende waterding,

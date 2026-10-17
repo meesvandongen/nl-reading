@@ -1,5 +1,6 @@
 import { settings, updateSettings, FONTS, type FontFamily, type Settings } from '../state/settings'
 import { voices, speak } from '../services/tts'
+import { CEFR_NAMES } from '../lib/levels'
 import { Sheet } from './Sheet'
 
 function Seg<K extends keyof Settings>({
@@ -38,26 +39,17 @@ export function ReadingOptions() {
   return (
     <div class="settings-list">
       <div class="setting">
-        <div class="setting-label">Reading aid over kanji</div>
-        <Seg k="kanjiAid" options={[['furigana', 'Furigana'], ['romaji', 'Romaji'], ['none', 'Off']]} />
-      </div>
-      <div class="setting">
-        <div class="setting-label">Reading aid over kana</div>
-        <Seg k="kanaAid" options={[['romaji', 'Romaji'], ['none', 'Off']]} />
-      </div>
-      <div class="setting">
-        <div class="setting-label">Show reading aids for</div>
-        <Seg k="aidScope" options={[['all', 'All words'], ['unknown', 'Unknown words'], ['jlpt', 'By JLPT level']]} />
-        {s.aidScope === 'unknown' && <p class="muted small">Hidden for words you marked as known and flashcards you have learned well.</p>}
-        {s.aidScope === 'jlpt' && (
+        <div class="setting-label">Meaning above words</div>
+        <Seg k="glossScope" options={[['off', 'Off'], ['unknown', 'New words'], ['level', 'By level'], ['all', 'All']]} />
+        {s.glossScope === 'unknown' && <p class="muted small">Hidden for words you marked as known and flashcards you have learned well.</p>}
+        {s.glossScope === 'level' && (
           <div class="row-inline">
-            <span class="small">Hide for words at</span>
-            <select value={String(s.aidJlpt)} onChange={(e) => updateSettings({ aidJlpt: Number((e.target as HTMLSelectElement).value) })}>
-              {[5, 4, 3, 2, 1].map((n) => (
-                <option value={String(n)}>N{n}</option>
+            <span class="small">Show for words above</span>
+            <select value={String(s.glossLevel)} onChange={(e) => updateSettings({ glossLevel: Number((e.target as HTMLSelectElement).value) })}>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <option value={String(n)}>{CEFR_NAMES[n]}</option>
               ))}
             </select>
-            <span class="small">and easier</span>
           </div>
         )}
       </div>
@@ -66,17 +58,18 @@ export function ReadingOptions() {
         <Seg k="translation" options={[['off', 'Off'], ['sentence', 'Per sentence'], ['paragraph', 'Per paragraph']]} />
         {s.translation === 'sentence' && <p class="muted small">Tap a blurred translation to reveal it.</p>}
       </div>
-      <Toggle k="pitchAccent" label="Pitch accent colors" hint="Heiban · Atamadaka · Nakadaka · Odaka" />
-      {s.pitchAccent && (
+      <Toggle k="articleColors" label="Colour nouns by article" hint="Learn de and het while you read" />
+      {s.articleColors && (
         <div class="legend small">
-          <span class="pa-heiban">■ flat</span> <span class="pa-atamadaka">■ head-high</span> <span class="pa-nakadaka">■ middle-high</span>{' '}
-          <span class="pa-odaka">■ tail-high</span>
+          <span class="art-de">■ de-words</span> <span class="art-het">■ het-words</span>
         </div>
       )}
-      <Toggle k="jlptHighlight" label="Highlight JLPT vocabulary" />
-      {s.jlptHighlight && (
+      <Toggle k="levelHighlight" label="Underline words by level" hint="Estimated from how common a word is" />
+      {s.levelHighlight && (
         <div class="legend small">
-          <span class="jl-5">N5</span> <span class="jl-4">N4</span> <span class="jl-3">N3</span> <span class="jl-2">N2</span> <span class="jl-1">N1</span>
+          {[1, 2, 3, 4, 5, 6].map((l) => (
+            <span class={`lv-${l}`}>{CEFR_NAMES[l]} </span>
+          ))}
         </div>
       )}
       <Toggle k="highlightSaved" label="Underline saved words" />
@@ -86,7 +79,7 @@ export function ReadingOptions() {
         <div class="font-options">
           {(Object.keys(FONTS) as FontFamily[]).map((f) => (
             <button class={`font-opt ${s.fontFamily === f ? 'on' : ''}`} style={{ fontFamily: FONTS[f].css }} onClick={() => updateSettings({ fontFamily: f })}>
-              <span lang="ja">読む</span>
+              <span lang="nl">Lezen</span>
               <span class="small">{FONTS[f].label}</span>
             </button>
           ))}
@@ -96,15 +89,14 @@ export function ReadingOptions() {
         <div class="setting-label">
           Text size <span class="muted">{s.fontSize}px</span>
         </div>
-        <input type="range" min="14" max="40" step="1" value={s.fontSize} onInput={(e) => updateSettings({ fontSize: Number((e.target as HTMLInputElement).value) })} />
+        <input type="range" min="14" max="36" step="1" value={s.fontSize} onInput={(e) => updateSettings({ fontSize: Number((e.target as HTMLInputElement).value) })} />
       </div>
       <div class="setting">
         <div class="setting-label">
-          Line spacing <span class="muted">{s.lineHeight.toFixed(1)}</span>
+          Line spacing <span class="muted">{s.lineHeight.toFixed(2)}</span>
         </div>
-        <input type="range" min="1.5" max="3" step="0.1" value={s.lineHeight} onInput={(e) => updateSettings({ lineHeight: Number((e.target as HTMLInputElement).value) })} />
+        <input type="range" min="1.3" max="2.6" step="0.05" value={s.lineHeight} onInput={(e) => updateSettings({ lineHeight: Number((e.target as HTMLInputElement).value) })} />
       </div>
-      <Toggle k="vertical" label="Vertical text (縦書き)" />
       <div class="setting">
         <div class="setting-label">Theme</div>
         <Seg k="theme" options={[['system', 'Auto'], ['light', 'Light'], ['sepia', 'Sepia'], ['dark', 'Dark']]} />
@@ -117,17 +109,17 @@ export function ReadingOptions() {
               <option value="">Automatic</option>
               {voices.value.map((v) => (
                 <option value={v.voiceURI}>
-                  {v.name}
-                  {v.localService ? '' : ' (online)'}
+                  {v.name} ({v.lang})
+                  {v.localService ? '' : ' · online'}
                 </option>
               ))}
             </select>
-            <button class="chip" onClick={() => speak('こんにちは。日本語を読みましょう。')}>
+            <button class="chip" onClick={() => speak('Goedemorgen! Zullen we samen een verhaal lezen?')}>
               Test
             </button>
           </div>
         ) : (
-          <p class="muted small">No Japanese voice found on this device. Install a Japanese text-to-speech voice in your system settings to enable audio.</p>
+          <p class="muted small">No Dutch voice found on this device. Install a Dutch text-to-speech voice in your system settings to listen to stories.</p>
         )}
       </div>
       <div class="setting">
@@ -136,6 +128,7 @@ export function ReadingOptions() {
         </div>
         <input type="range" min="0.5" max="1.5" step="0.05" value={s.rate} onInput={(e) => updateSettings({ rate: Number((e.target as HTMLInputElement).value) })} />
       </div>
+      <Toggle k="recordings" label="Native recordings for single words" hint="Played from Wikimedia Commons when a word has one" />
       <Toggle k="autoScroll" label="Follow audio while listening" />
     </div>
   )

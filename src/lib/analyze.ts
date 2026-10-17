@@ -106,6 +106,13 @@ const PARTICLES = new Set([
   'rood', 'stuk', 'vol', 'warm', 'wakker', 'zwart', 'bijeen', 'omver', 'overeen', 'rondom', 'teweeg', 'vandaan', 'achteruit', 'boven',
 ])
 const SUBJECT_PRONOUNS = new Set(['ik', 'jij', 'je', 'u', 'hij', 'zij', 'ze', 'het', 'wij', 'we', 'jullie', 'men'])
+const OBJECT_PRONOUNS = new Set(['hem', 'hen', 'mij', 'me', 'jou', 'ons', 'zich'])
+/** Nouns that share their spelling with a rare verb form (maart: maren, week: wijken). */
+const ALWAYS_NOUNS = new Set([
+  'januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december',
+  'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag', 'week', 'weken', 'lente', 'zomer', 'herfst', 'winter',
+  'moeder', 'vader', 'water', 'tranen', 'namen', 'kist', 'meter', 'deken', 'lach',
+])
 const COPULAS = new Set(['ben', 'bent', 'is', 'zijn', 'was', 'waren', 'word', 'wordt', 'worden', 'werd', 'werden', 'blijf', 'blijft', 'blijven', 'bleef', 'bleven', 'lijkt', 'leek'])
 const DEGREE = new Set(['heel', 'erg', 'zeer', 'te', 'zo', 'nogal', 'vrij', 'best', 'echt', 'super', 'hartstikke', 'ontzettend', 'enorm', 'behoorlijk', 'redelijk', 'helemaal', 'minder', 'meer', 'even', 'net', 'iets'])
 const QUANTIFIERS = new Set(['paar', 'aantal', 'boel', 'hoop', 'stel', 'stuk', 'heleboel'])
@@ -122,8 +129,24 @@ const FUNCTION_HINTS: Record<string, string> = {
   nou: 'well, now', hè: "eh?, isn't it?", hoor: '(emphasis: really, you know)', gewoon: 'just, simply; normal', zo: 'so, like this; soon',
   al: 'already', nog: 'still, yet; more', ook: 'also, too', dan: 'then; than', als: 'if, when; as, like', of: 'or; whether', om: 'around; to (om … te)',
 }
+/** Better hints for common adjectives and adverbs whose first dictionary sense isn't the usual one. */
+const CONTENT_HINTS: Record<string, string> = {
+  hoe: 'how', toen: 'when (in the past); then', steeds: 'always; increasingly (steeds meer)', heel: 'very; whole', lang: 'long',
+  natuurlijk: 'of course; natural', gelukkig: 'luckily; happy', alleen: 'only; alone', eigenlijk: 'actually', echt: 'really; real',
+  één: 'one', elf: 'eleven', vier: 'four', meteen: 'immediately', zelfs: 'even', ineens: 'suddenly', opeens: 'suddenly', toch: 'still, anyway; surely',
+}
 const MODAL_PARTICLE_WORDS = new Set(['even', 'maar', 'toch', 'wel', 'eens', 'nou', 'hè', 'hoor', 'gewoon'])
 
+/** Second halves of circumpositions and the prepositions they go with. */
+// (not "van … af" or "op … af": "sneden een stuk van het doek af" is afsnijden, "kwam op me af" afkomen)
+const CIRCUMPOSITIONS: Record<string, string[]> = {
+  aan: ['achter', 'tegen', 'tot'],
+  toe: ['naar', 'tot'],
+  heen: ['om', 'door', 'naar', 'over'],
+  langs: ['achter'],
+}
+/** Prepositions that combine with er/daar/waar/hier (erop, daarvoor). */
+const R_PREPOSITIONS = new Set(['op', 'aan', 'in', 'uit', 'over', 'mee', 'voor', 'door', 'af', 'toe', 'van', 'bij', 'tegen', 'achter', 'om', 'onder', 'naast', 'langs', 'tussen', 'na'])
 /** Verb forms that can be the finite verb of a main clause. */
 const FINITE = new Set(['', '1s', '23s', 'prespl', 'pst', 'pstpl', 'imp'])
 
@@ -318,9 +341,26 @@ function choose(slots: Slot[], i: number, sentenceStart: boolean): Cand | undefi
   const nextJoined = !!next && !next.punct
   const nextTopJoined = nextJoined ? nextTop : undefined
   const hasNoun = cands.some((c) => c.lemma.p === 'n')
+  const nextIsSubject = nextJoined && SUBJECT_PRONOUNS.has(next.key) && next.key !== 'het'
   const score = (c: Cand) => {
     let s = c.rank * 3
     const p = c.lemma.p
+    // rare words are rarely what is meant (jijen, hen "bird", maren, wateren)
+    s += ((c.lemma.l ?? 7) - 1) * 1.2
+    // subject pronouns are pronouns (Zij, Jij at the start of a sentence)
+    if ((SUBJECT_PRONOUNS.has(key) || OBJECT_PRONOUNS.has(key)) && key !== 'je' && key !== 'het' && p === 'pron') s -= 6
+    if ((key === 'hoe' || key === 'daar' || key === 'hier') && p === 'adv') s -= 6
+    if (ALWAYS_NOUNS.has(key) && p === 'n') s -= 14
+    // the article agrees with the noun: "de koper" is the buyer, "het koper" copper
+    if (p === 'n' && joined && c.code === '' && ((prevKey === 'de' && c.lemma.g === 'het') || ((prevKey === 'het' || prevKey === 'dit') && c.lemma.g === 'de'))) s += 6
+    // "zijn" after a noun is the verb (Bedrijven zijn blij)
+    if (key === 'zijn' && p === 'v' && joined && ['n', 'name'].includes(prev.chosen?.lemma.p ?? '')) s -= 8
+    // a verb before its subject (geloof ik, Hoe heet je, Bij ons heet hij)
+    if (nextIsSubject && p === 'v' && FINITE.has(c.code)) s -= 6
+    // second place in the clause, after a question word or adverb: the finite verb (Hoe heet …)
+    if (joined && prevClauseStart && (QUESTION_WORDS.has(prevKey!) || prev.chosen?.lemma.p === 'adv') && p === 'v' && FINITE.has(c.code)) s -= 4
+    // a bare singular noun without an article is rare; a verb form of the same spelling more likely (zit, weet, wacht)
+    if (!afterDet && p === 'n' && c.code === '' && !capital && cands.some((x) => x.lemma.p === 'v' && FINITE.has(x.code) && x.code !== '')) s += 3
     // imperative-only forms (zij, wees) are rarely what is meant
     if (p === 'v' && c.code === 'imp') s += 6
     // short pronoun forms: the dictionary lists "ze" under both zij and haar
@@ -330,7 +370,7 @@ function choose(slots: Slot[], i: number, sentenceStart: boolean): Cand | undefi
     // the word itself rather than a form of another word, for little words (er, eens, daarna)
     if (c.code === '' && ['adv', 'pron', 'det', 'prep', 'conj', 'art', 'num', 'intj'].includes(p) && !cands.some((x) => x.lemma.p === 'v')) s -= 3
     // vague or rare kinds of forms
-    if (c.code === 'form' || c.code === 'part') s += 2
+    if (c.code === 'form' || c.code === 'part') s += cands.some((x) => x.code === '') ? 9 : 5
     if (c.code === 'gen') s += 3
     // after heel, erg, te…: an adjective (een heel duur slot)
     if (joined && DEGREE.has(prevKey!)) {
@@ -338,7 +378,7 @@ function choose(slots: Slot[], i: number, sentenceStart: boolean): Cand | undefi
       if (p === 'v' && FINITE.has(c.code)) s += 4
     }
     if (key === 'een' && p === 'art') s -= nextJoined ? 10 : 2
-    if (p === 'num') s -= 2
+    if (p === 'num') s -= key === 'een' ? 2 : 6
     // after a preposition: a noun or pronoun, not a finite verb
     if (joined && prev.chosen?.lemma.p === 'prep') {
       if (p === 'v' && FINITE.has(c.code) && c.code !== '') s += 5
@@ -353,7 +393,10 @@ function choose(slots: Slot[], i: number, sentenceStart: boolean): Cand | undefi
     // a common noun that happens to look like a diminutive or plural of another word (meisje)
     if (p === 'n' && c.code === '' && (c.lemma.l ?? 9) <= 2 && cands.some((x) => x.lemma.p === 'n' && ['dim', 'dimpl', 'pl'].includes(x.code))) s -= 4
     // a verb after a noun (de koffie staat), and an imperative or question verb at the start (Kom binnen!)
-    if (p === 'v' && FINITE.has(c.code) && ((joined && ['n', 'name'].includes(prev.chosen?.lemma.p ?? '')) || (slot.start && ['1s', 'imp', '23s', 'prespl', ''].includes(c.code)))) s -= 5
+    if (p === 'v' && FINITE.has(c.code) && ((joined && ['n', 'name'].includes(prev.chosen?.lemma.p ?? '')) || (slot.start && ['1s', 'imp', '23s'].includes(c.code)))) s -= 5
+    // object "me" and possessive "mijn"
+    if (key === 'me' && p === 'det' && !isNounish(nextTopJoined)) s += 8
+    if (key === 'mijn' && p === 'det' && !afterDet) s -= 8
     // without an article, an adverb reading usually wins (morgen = tomorrow, weg = away)
     if (!afterDet && p === 'adv' && hasNoun) s -= 4
     // preposition before a noun phrase, adverb at the end of a clause
@@ -384,11 +427,15 @@ function choose(slots: Slot[], i: number, sentenceStart: boolean): Cand | undefi
     if (POSSESSIVES.has(key) && key !== 'zijn' && key !== 'haar' && (p === 'det' || p === 'pron') && isNounish(nextTopJoined)) s -= 4
     if ((key === 'zijn' || key === 'haar' || key === 'je') && !afterDet) {
       // (not before a word that can be an adverb: "Ik bel je morgen op")
+      // (not right after a subject: "Zij zijn moe")
+      const afterSubject = joined && prevClauseStart && SUBJECT_PRONOUNS.has(prevKey!)
       const possessive =
         nextJoined &&
+        !afterSubject &&
         !ARTICLES.has(next.key) &&
         !DETERMINERS.has(next.key) &&
-        next.cands.some((x) => x.lemma.p === 'n' || x.lemma.p === 'adj') &&
+        // a noun next, or an inflected adjective (zijn mooie huis)
+        next.cands.some((x) => x.lemma.p === 'n' || (x.lemma.p === 'adj' && x.code === 'e')) &&
         !next.cands.some((x) => x.lemma.p === 'adv')
       if (p === 'det') s += possessive ? -10 : 4
       if (key === 'je' && p === 'det') s += 3
@@ -474,7 +521,14 @@ function applyCand(w: Word, c: Cand, surface: string) {
   if (lemma.h) w.h = lemma.h
   const key = normalizeKey(surface)
   if (FUNCTION_HINTS[key] && ['pron', 'det', 'art', 'adv', 'conj', 'prep'].includes(lemma.p)) w.h = FUNCTION_HINTS[key]
-  if (key === 'je' && lemma.p === 'det') w.h = 'your'
+  if (CONTENT_HINTS[key] && ['adj', 'adv', 'num', 'conj'].includes(lemma.p)) w.h = CONTENT_HINTS[key]
+  // possessive "je" is listed under jullie, but means "your" (jouw)
+  if (key === 'je' && lemma.p === 'det') {
+    w.h = 'your'
+    w.b = 'jouw'
+  }
+  // little words are all common, whatever their share of a frequency list says
+  if (['pron', 'det', 'art', 'prep', 'conj'].includes(lemma.p) && (w.l ?? 1) > 2) w.l = 2
   if ((key === 'die' || key === 'dat' || key === 'deze' || key === 'dit') && lemma.p === 'det') w.h = key === 'die' || key === 'dat' ? 'that, those' : 'this, these'
   const steps = stepsFor(c)
   if (steps.length) w.f = steps
@@ -610,6 +664,17 @@ function analyzeTokens(lex: Lexicon, tokens: Token[]): Word[] {
     if (isCapitalized(slot.tok.s)) w.p = 'name'
   })
 
+  // "een beschermde diersoort": a participle with -e looks like a past tense
+  slots.forEach((slot, i) => {
+    const c = slot.chosen
+    const prev = slots[i - 1]?.word
+    const next = slots[i + 1]?.word
+    if (c?.lemma.p === 'v' && c.code === 'pst' && /[dt]e$/.test(slot.key) && prev && ['art', 'det', 'adj'].includes(prev.p) && next?.p === 'n') {
+      slot.word.p = 'adj'
+      slot.word.c = 'e'
+      slot.word.f = [{ l: 'past participle used as an adjective (+ -e)', g: 'adjectives' }]
+    }
+  })
   linkExpressions(lex, slots)
   linkGrammar(lex, slots, words)
   return words
@@ -626,8 +691,11 @@ function linkExpressions(lex: Lexicon, slots: Slot[]) {
       if (!hit) continue
       for (const s of group) {
         s.word.x = { b: hit.lemma.w, e: hit.lemma.i, ...(hit.lemma.h ? { h: hit.lemma.h } : {}) }
-        // a word that only exists in the expression (slotte) shows the expression
-        if (!s.word.e) {
+        // a word that only exists in the expression (slotte, 's in 's nachts) shows the expression
+        if (!s.word.e || s.key === "'s" || hit.lemma.w.startsWith("'s")) {
+          delete s.word.a
+          delete s.word.c
+          delete s.word.f
           s.word.e = hit.lemma.i
           s.word.b = hit.lemma.w
           if (hit.lemma.h) s.word.h = hit.lemma.h
@@ -682,6 +750,12 @@ function linkSeparable(lex: Lexicon, clause: Slot[], words: Word[]) {
       after[0].chosen?.lemma.p === 'prep' &&
       after.slice(1).every((s) => ['art', 'det', 'adj', 'n', 'name', 'pron', 'num'].includes(s.word.p) || (s.chosen?.lemma.p === 'v' && s.chosen.code === 'pp'))
     if (!verbsOnly && !pp) continue
+    // "achter hem aan", "op me af", "naar huis toe": the second half of a circumposition;
+    // "er … op", "daar … voor": a split pronominal adverb (Er staat op: …, Daar ben je te klein voor)
+    const before = clause.slice(0, pi).map((x) => x.key)
+    const circum = CIRCUMPOSITIONS[part.key]?.some((pre) => before.includes(pre))
+    const rPronoun = before.some((k) => k === 'er' || k === 'daar' || k === 'waar' || k === 'hier') && R_PREPOSITIONS.has(part.key)
+    if (circum || rPronoun) continue
     for (let vi = pi - 1; vi >= 0; vi--) {
       const verb = clause[vi]
       const c = verb.chosen

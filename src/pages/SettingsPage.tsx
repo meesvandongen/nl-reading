@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks'
 import { settings, updateSettings, resetSettings } from '../state/settings'
 import { clearAll, exportBackup, importBackup, loadAll } from '../state/db'
-import { LEVELS } from '../lib/levels'
+import { LEVELS, LEVEL_HINTS } from '../lib/levels'
 import { dictDownload, dictionaryOffline, downloadDictionary } from '../services/dictionary'
 import { disableReminders, downloadIcs, enableReminders, scheduleInAppReminder } from '../services/reminders'
 import { installPrompt, promptInstall, isStandalone } from '../services/pwa'
@@ -44,7 +44,7 @@ export function SettingsPage() {
     const blob = new Blob([await exportBackup()], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
-    a.download = `jp-reading-backup-${new Date().toISOString().slice(0, 10)}.json`
+    a.download = `nl-reading-backup-${new Date().toISOString().slice(0, 10)}.json`
     a.click()
     URL.revokeObjectURL(a.href)
   }
@@ -78,8 +78,10 @@ export function SettingsPage() {
       <section>
         <h2 class="section-title">My level</h2>
         <select value={s.level} onChange={(e) => updateSettings({ level: (e.target as HTMLSelectElement).value, onboarded: true })}>
-          {LEVELS.map((l) => (
-            <option value={l.id}>{l.label}</option>
+          {LEVELS.filter((l) => l.id !== 'classics').map((l) => (
+            <option value={l.id}>
+              {l.label} · {LEVEL_HINTS[l.id]}
+            </option>
           ))}
         </select>
         <p class="muted small">Used for recommendations.</p>
@@ -130,7 +132,7 @@ export function SettingsPage() {
           <div>
             <b>Dictionary</b>
             <div class="muted small">
-              {offlineVersion ? 'Downloaded for offline use.' : 'Words you look up are cached. Download everything (≈ 25 MB) to use it fully offline.'}
+              {offlineVersion ? 'Downloaded for offline use.' : 'Words you look up are cached. Download everything (≈ 10 MB) to use it fully offline.'}
             </div>
           </div>
           <button class="btn small" disabled={dl?.running} onClick={() => downloadDictionary().then(refresh)}>

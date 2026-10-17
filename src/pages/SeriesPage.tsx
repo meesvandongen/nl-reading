@@ -1,5 +1,5 @@
 import type { StoryMeta } from '../lib/types'
-import { levelInfo } from '../lib/levels'
+import { readingMinutes } from '../lib/levels'
 import { getSeries, library, libraryError, seriesProgress } from '../services/library'
 import { progress } from '../state/db'
 import { back, navigate } from '../router'
@@ -18,7 +18,7 @@ export function SeriesPage({ id }: { id: string }) {
   const { done, next } = seriesProgress(series)
   const nextMeta = next ? byId.get(next) : undefined
   const nextStarted = !!next && (progress.value.get(next)?.position ?? 0) > 0
-  const minutes = Math.max(1, Math.round(series.chars / (levelInfo(series.level).jlpt >= 4 ? 150 : 300)))
+  const minutes = readingMinutes(series.words, series.level)
   const read = (e: string) => navigate(`/read/${encodeURIComponent(e)}`)
 
   return (
@@ -34,10 +34,10 @@ export function SeriesPage({ id }: { id: string }) {
         <div class="reader-meta">
           <LevelBadge level={series.level} />
           <span class="muted small">
-            {episodes.length} episodes · {series.chars.toLocaleString()} characters · ~{minutes} min
+            {episodes.length} episodes · {series.words.toLocaleString()} words · ~{minutes} min
           </span>
         </div>
-        <h1 lang="ja">{series.title}</h1>
+        <h1 lang="nl">{series.title}</h1>
         {series.title_en && <div class="subtitle">{series.title_en}</div>}
         {series.author && <div class="muted small">{series.author}</div>}
         {series.summary && <p>{series.summary}</p>}
@@ -74,10 +74,10 @@ export function SeriesPage({ id }: { id: string }) {
               <span class="ep-num">{state === 'done' ? <Icon name="check" size={16} /> : e.episode}</span>
               <div class="ep-body">
                 <div class="muted small">
-                  <span lang="ja">第{e.episode}話</span> · {e.chars.toLocaleString()} 字
+                  Episode {e.episode} · {e.words.toLocaleString()} words
                   {pct > 0 && ` · ${pct}%`}
                 </div>
-                <b lang="ja">{e.title}</b>
+                <b lang="nl">{e.title}</b>
                 {e.title_en && <div class="story-card-en">{e.title_en}</div>}
                 {/* no spoilers: the summary shows once you get to an episode */}
                 {state !== 'later' && e.summary && <p class="small">{e.summary}</p>}
