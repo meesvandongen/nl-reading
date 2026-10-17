@@ -1,301 +1,147 @@
 // Client for the sharded dictionary built by scripts/build-dict.mjs.
 
-import { bucketOf, normalizeKey, englishWords, J_BUCKETS, E_BUCKETS, K_BUCKETS } from './dictKeys.js'
-import { hasKanji, toHiragana } from './kana'
-import { alignFurigana } from './furigana'
-import type { Word } from './types'
+import { bucketOf, normalizeKey, englishWords, F_BUCKETS, E_BUCKETS, X_BUCKETS, FORM_LABELS } from './dictKeys.js'
+import type { Article } from './types'
 
-export interface RawReading {
-  t: string
-  /** restricted to these kanji forms */
-  x?: string[]
-  /** no kanji */
-  n?: 1
-  /** info tags */
-  f?: string[]
-  /** pitch accent */
-  a?: string
-}
 export interface Sense {
-  /** part of speech tags */
-  p: string[]
-  /** glosses */
-  g: string[]
-  /** misc tags */
-  m?: string[]
-  /** field */
-  d?: string[]
-  /** dialect */
-  l?: string[]
-  /** info */
-  n?: string[]
-  /** cross references */
-  x?: string[]
-  /** only applies to these kanji / readings */
-  sk?: string[]
-  sr?: string[]
+  /** gloss */
+  g: string
+  /** usage / region tags */
+  t?: string[]
+  /** example sentence and its translation */
+  x?: [string, string]
 }
+
+export interface VerbInfo {
+  /** past tense singular (main clause form for separable verbs: "belde op") */
+  pt?: string
+  /** past tense plural */
+  ptp?: string
+  /** past participle */
+  pp?: string
+  /** auxiliary of the perfect tense when not hebben */
+  aux?: string
+  /** separable prefix */
+  sep?: string
+  /** strong or irregular */
+  k?: 'strong' | 'irregular'
+}
+
 export interface Entry {
   i: number
-  k: (string | [string, string[]])[]
-  r: (string | RawReading)[]
+  /** headword */
+  w: string
+  /** part of speech: n, v, adj, adv, pron, prep, conj, det, art, num, intj, name, phrase, contr, prefix, suffix, part */
+  p: string
   s: Sense[]
-  c?: 1
-  q?: number
-  j?: number
-  uk?: 1
-}
-interface JShard {
-  e: Entry[]
-  k: Record<string, number[]>
-}
-export interface KanjiInfo {
-  c: string
-  m: string[]
-  on: string[]
-  kun: string[]
-  s: number
-  g?: number
-  j?: number
+  /** article of a noun */
+  g?: Article
+  /** plurals */
+  pl?: string[]
+  /** diminutive */
+  dim?: string
+  /** plural only */
+  po?: 1
+  v?: VerbInfo
+  /** reflexive verb */
+  rf?: 1
+  /** comparative, superlative */
+  c?: [string, string]
+  ipa?: string
+  /** Wikimedia Commons path of a recording, e.g. "e/e3/Nl-huis.ogg" */
+  a?: string
+  /** frequency rank */
   f?: number
-  rad?: number
-  n?: string[]
-}
-/** [kanji form or '', reading, short gloss, jlpt] */
-export type EnglishHit = [string, string, string, number]
-
-export function kanjiForms(e: Entry): { t: string; tags: string[] }[] {
-  return e.k.map((k) => (typeof k === 'string' ? { t: k, tags: [] } : { t: k[0], tags: k[1] }))
+  /** CEFR level from the frequency rank, 1–6 */
+  l?: number
 }
 
-export function readings(e: Entry): RawReading[] {
-  return e.r.map((r) => (typeof r === 'string' ? { t: r } : r))
-}
+/** [entry id, form code] — the form code is '' for the headword itself. */
+export type FormHit = [number, string]
 
-/** Main headword: first kanji form (unless the word is usually kana) and its reading. */
-export function headword(e: Entry, preferKana = false): { word: string; reading: string; accent?: string } {
-  const ks = kanjiForms(e).filter((k) => !k.tags.some((t) => t === 'sK' || t === 'oK' || t === 'iK'))
-  const rs = readings(e)
-  const r = rs[0]
-  if (!ks.length || preferKana || e.uk) return { word: r.t, reading: r.t, accent: r.a }
-  return { word: ks[0].t, reading: r.t, accent: r.a }
-}
-
-/** Does the entry's part of speech fit the word from the text? */
-/** Common kana words whose usual meaning the frequency data gets wrong. */
-const PREFERRED: Record<string, string> = {
-  なる: '成る', // not 生る "bear fruit"
-  かく: '書く', // not 掻く "scratch"
-  いし: '石', // not 意思
-  やさしい: '優しい', // "kind" is the more common sense in stories
-}
-
-function posMatches(e: Entry, w: Partial<Pick<Word, 'c' | 'p'>>): boolean {
-  const tags = e.s.flatMap((s) => s.p)
-  if (w.c) {
-    if (w.c === 'v5') return tags.some((t) => t.startsWith('v5'))
-    if (w.c === 'vs') return tags.some((t) => t.startsWith('vs'))
-    if (w.c === 'vk') return tags.includes('vk')
-    return tags.some((t) => t.startsWith(w.c!))
-  }
-  switch (w.p) {
-    case 'n':
-    case 'name':
-    case 'num':
-      return tags.some((t) => t.startsWith('n') || t === 'pn' || t === 'ctr')
-    case 'na':
-      return tags.includes('adj-na')
-    case 'adv':
-      return tags.some((t) => t.startsWith('adv'))
-    case 'pn':
-      return tags.includes('pn')
-    case 'conj':
-      return tags.includes('conj')
-    case 'int':
-      return tags.includes('int')
-    case 'adn':
-      return tags.includes('adj-pn')
-    case 'prt':
-      return tags.includes('prt') || tags.includes('conj')
-    case 'aux':
-      return tags.some((t) => t.startsWith('aux') || t === 'cop')
-    case 'suf':
-      return tags.some((t) => t === 'suf' || t === 'ctr')
-    case 'pre':
-      return tags.includes('pref')
-  }
-  return true
-}
-
-/**
- * Does the entry name something (Kyoto, Momotarō, Ise Grand Shrine) rather than
- * being a common word ("large field", "Japanese beautyberry")? JMdict capitalizes
- * every word of a proper noun's first gloss.
- */
-export function isProperNoun(e: Entry): boolean {
-  const g = (e.s[0]?.g[0] ?? '').replace(/\([^)]*\)/g, ' ')
-  const words = g.split(/\s+/).filter((w) => w && !/^(of|the|and|a|an|in|on|de|no|period|era|peninsula)$/i.test(w))
-  return words.length > 0 && words.every((w) => /^[\p{Lu}\d]/u.test(w))
-}
-
-/**
- * A name only matches entries that are names too: エマ (Emma) is not 絵馬
- * "votive tablet", 大野さん is not 大野 "large field". Applies to a person's name
- * (`ps`) and to katakana names, which otherwise match any native word in kanji
- * read the same way. Loanwords (katakana in JMdict) and kana-only words (ニャー)
- * still match.
- */
-export function nameMismatch(e: Entry, r: RawReading, word: Partial<Pick<Word, 's' | 'p' | 'ps'>>): boolean {
-  if (word.p !== 'name' || isProperNoun(e)) return false
-  if (word.ps) return true
-  if (!word.s || !/^[ァ-ヺー・]+$/.test(word.s) || !e.k.length) return false
-  // JMdict lists a katakana reading for words often written so (寒緋桜 カンヒザクラ)
-  const kata = toHiragana(word.s)
-  return !/[ァ-ヺ]/.test(r.t) && !readings(e).some((x) => /[ァ-ヺ]/.test(x.t) && toHiragana(x.t) === kata)
-}
+/** [entry id, headword, short gloss, level, article] */
+export type EnglishHit = [number, string, string, number, string]
 
 export type Loader = (path: string) => Promise<unknown>
 
+/** The dictionary as sharded JSON files, loaded on demand. */
 export class Dictionary {
-  private j = new Map<number, Promise<JShard>>()
-  private e = new Map<number, Promise<Record<string, EnglishHit[]>>>()
-  private k = new Map<number, Promise<Record<string, KanjiInfo>>>()
-  private tags?: Promise<Record<string, string>>
+  private f = new Map<number, Promise<Record<string, FormHit[]>>>()
+  private e = new Map<number, Promise<Record<string, Entry>>>()
+  private x = new Map<number, Promise<Record<string, EnglishHit[]>>>()
 
   constructor(private load: Loader) {}
 
-  private jShard(b: number): Promise<JShard> {
-    let p = this.j.get(b)
+  private shard<T>(cache: Map<number, Promise<T>>, dir: string, b: number): Promise<T> {
+    let p = cache.get(b)
     if (!p) {
-      p = this.load(`j/${b}.json`) as Promise<JShard>
-      p.catch(() => this.j.delete(b))
-      this.j.set(b, p)
+      p = this.load(`${dir}/${b}.json`) as Promise<T>
+      p.catch(() => cache.delete(b))
+      cache.set(b, p)
     }
     return p
   }
 
-  /** Exact lookup by kanji form or reading. Results are ranked. */
-  async lookup(key: string): Promise<Entry[]> {
+  async forms(key: string): Promise<FormHit[]> {
     const k = normalizeKey(key)
     if (!k) return []
-    const shard = await this.jShard(bucketOf(k, J_BUCKETS))
-    return (shard.k[k] ?? []).map((i) => shard.e[i])
+    return (await this.shard(this.f, 'f', bucketOf(k, F_BUCKETS)))[k] ?? []
   }
 
-  /**
-   * All dictionary words that start at the beginning of `text`, longest first.
-   * Used for tap lookups to catch compounds the tokenizer splits.
-   */
-  async prefixes(text: string, max = 12): Promise<{ text: string; entries: Entry[] }[]> {
-    const chars = Array.from(text).slice(0, max)
-    const out: { text: string; entries: Entry[] }[] = []
-    for (let n = chars.length; n >= 1; n--) {
-      const t = chars.slice(0, n).join('')
-      if (!/[぀-ヿ㐀-鿿豈-﫿々〆ヶ]/.test(t)) continue
-      const entries = await this.lookup(t)
-      if (entries.length) out.push({ text: t, entries })
-    }
-    return out
+  async entry(id: number): Promise<Entry | undefined> {
+    return (await this.shard(this.e, 'e', id % E_BUCKETS))[id]
   }
 
-  async kanji(ch: string): Promise<KanjiInfo | undefined> {
-    const b = ch.codePointAt(0)! % K_BUCKETS
-    let p = this.k.get(b)
-    if (!p) {
-      p = this.load(`k/${b}.json`) as Promise<Record<string, KanjiInfo>>
-      p.catch(() => this.k.delete(b))
-      this.k.set(b, p)
-    }
-    return (await p)[ch]
+  /** All entries a word form can belong to, most likely first, with what form it is of each. */
+  async lookup(word: string): Promise<{ entry: Entry; code: string }[]> {
+    const hits = await this.forms(word)
+    const out = await Promise.all(hits.map(async ([id, code]) => ({ entry: await this.entry(id), code })))
+    return out.filter((x): x is { entry: Entry; code: string } => !!x.entry)
   }
 
   async english(query: string): Promise<EnglishHit[]> {
     const words = englishWords(query)
     if (!words.length) return []
-    const lists = await Promise.all(
-      words.map(async (w) => {
-        const b = bucketOf(w, E_BUCKETS)
-        let p = this.e.get(b)
-        if (!p) {
-          p = this.load(`e/${b}.json`) as Promise<Record<string, EnglishHit[]>>
-          p.catch(() => this.e.delete(b))
-          this.e.set(b, p)
-        }
-        return (await p)[w] ?? []
-      }),
-    )
+    const lists = await Promise.all(words.map(async (w) => (await this.shard(this.x, 'x', bucketOf(w, X_BUCKETS)))[w] ?? []))
     if (lists.length === 1) return lists[0]
     // Intersect multi-word queries, keeping the order of the first list
-    const key = (h: EnglishHit) => h[0] + '|' + h[1]
-    const rest = lists.slice(1).map((l) => new Set(l.map(key)))
-    const both = lists[0].filter((h) => rest.every((s) => s.has(key(h))))
+    const rest = lists.slice(1).map((l) => new Set(l.map((h) => h[0])))
+    const both = lists[0].filter((h) => rest.every((s) => s.has(h[0])))
     return both.length ? both : lists.flat()
   }
+}
 
-  tagDescriptions(): Promise<Record<string, string>> {
-    if (!this.tags) this.tags = this.load('tags.json') as Promise<Record<string, string>>
-    return this.tags
-  }
+export function formLabel(code: string | undefined): string {
+  return code ? (FORM_LABELS[code] ?? code) : ''
+}
 
-  /** Best entry for a word from a text, preferring entries whose reading matches. */
-  async bestEntry(word: Pick<Word, 's'> & Partial<Pick<Word, 'b' | 'br' | 'r' | 'c' | 'p' | 'ps'>>): Promise<{ entry: Entry; reading: RawReading } | undefined> {
-    const reading = word.b ? word.br : word.r ?? toHiragana(word.s)
-    const keys = [...new Set([word.b, word.s].filter((x): x is string => !!x))]
-    for (const key of keys) {
-      const entries = await this.lookup(key)
-      if (!entries.length) continue
-      if (reading) {
-        const rh = toHiragana(reading)
-        // A word the text writes in kana is most likely one usually written in kana:
-        // いちご is 苺 (strawberry), not 一期; くれる is "to give", not 暮れる
-        const kanaKey = !hasKanji(key)
-        let best: { entry: Entry; reading: RawReading; score: number } | undefined
-        entries.forEach((e, rank) => {
-          const r = readings(e).find((x) => toHiragana(x.t) === rh)
-          if (!r || nameMismatch(e, r, word)) return
-          // common words written in hiragana: usually-kana words and kana-only entries
-          // (not katakana loanwords that happen to read the same, ナカ, カゼ)
-          const kanaWord = e.c && (e.uk || (!e.k.length && r.t === key))
-          // old, irregular or ateji readings (机 read つき, 他人 read ひと) are a last resort
-          const odd = r.f?.some((f) => ['ok', 'ik', 'sk', 'rk', 'gikun'].includes(f)) ? 15 : 0
-          // basic words first for kana: うえ is 上 before 飢え, なか is 中 before 仲
-          const basic = kanaKey ? (e.j ?? 0) * 3 : 0
-          const preferred = kanaKey && PREFERRED[key] && kanjiForms(e).some((k) => k.t === PREFERRED[key]) ? 30 : 0
-          const score = rank + (posMatches(e, word) ? 0 : 20) + (kanaKey && !kanaWord ? 10 : 0) + odd - basic - preferred
-          if (!best || score < best.score) best = { entry: e, reading: r, score }
-        })
-        if (best) return { entry: best.entry, reading: best.reading }
-      }
-      // No reading match: only trust it when the key is a kanji form, or we have no reading
-      const e = entries.find((x) => !nameMismatch(x, readings(x)[0], word))
-      if (e && (!reading || hasKanji(key))) return { entry: e, reading: readings(e)[0] }
-    }
-    // する verbs are listed under their noun: 紹介する → 紹介
-    if (word.b && word.b.length > 2 && word.b.endsWith('する')) {
-      return this.bestEntry({ s: word.b.slice(0, -2), r: word.br?.replace(/する$/, '') })
-    }
-    return undefined
-  }
+/** Headword with its article for nouns: "de fiets", "het huis", "de/het was". */
+export function headword(e: Pick<Entry, 'w' | 'p' | 'g'>): string {
+  return e.p === 'n' && e.g ? `${e.g} ${e.w}` : e.w
+}
 
-  /** Fill in pitch accent, JLPT level, entry id and missing readings. */
-  async annotate(words: Word[]): Promise<void> {
-    await Promise.all(
-      words.map(async (w) => {
-        if (w.p === 'sym' || w.p === 'prt' || w.p === 'aux' || w.p === 'x') return
-        // the story says what this word means: the dictionary's homograph doesn't apply
-        if (w.m) return
-        if (!/[぀-ヿ㐀-鿿]/.test(w.s)) return
-        const hit = await this.bestEntry(w)
-        if (!hit) return
-        w.e = hit.entry.i
-        if (hit.entry.j) w.j = hit.entry.j
-        if (hit.reading.a) w.a = hit.reading.a
-        // Unknown words from the tokenizer have no reading: take the dictionary's
-        if (!w.r && hasKanji(w.s) && (!w.b || w.b === w.s)) {
-          w.r = toHiragana(hit.reading.t)
-          w.f = alignFurigana(w.s, w.r)
-        }
-      }),
-    )
-  }
+/** URL of a Wikimedia Commons recording, transcoded to MP3 (plays in every browser). */
+export function audioUrl(path: string): string {
+  const file = path.split('/').pop()!
+  return `https://upload.wikimedia.org/wikipedia/commons/transcoded/${path}/${file}.mp3`
+}
+
+const PARENS = /\s*\([^)]*\)/g
+
+/** A short meaning for hints: the first gloss up to the first ";" or ",", without brackets. */
+export function shortGloss(e: Entry, max = 28): string {
+  const g = (e.s[0]?.g ?? '').replace(PARENS, '').trim()
+  let out = g.split(/;/)[0].trim()
+  if (out.length > max) out = out.split(/,/)[0].trim()
+  if (out.length > max) out = out.slice(0, max - 1).trimEnd() + '…'
+  return (e.p === 'v' ? out : out.replace(/^(a|an|the) (?=\w)/i, '')).trim()
+}
+
+/** First glosses of an entry, for lists. */
+export function glossList(e: Entry, senses = 2): string {
+  return e.s
+    .slice(0, senses)
+    .map((s) => s.g.replace(PARENS, '').trim())
+    .filter(Boolean)
+    .join('; ')
 }

@@ -1,65 +1,83 @@
 ---
-title: Passive form
-title_jp: 受身形
-jlpt: N4
-order: 580
-summary: Being acted upon, including the "suffering passive" for unwanted events.
+title: The passive
+title_nl: De lijdende vorm
+cefr: B1
+order: 78
+summary: "Het huis wordt gebouwd. Het huis is gebouwd. Er wordt gelachen."
 ---
 
-The **passive form** shows that the subject is **affected by** someone else's action: "was praised", "was stolen". The person who does the action is marked with **に** ("by").
+In a passive sentence, the focus is on what happens, not on who does it: "The house **is being built**." Dutch makes the passive (*lijdende vorm*) with **worden** + past participle, and in the perfect with **zijn** + past participle.
 
-Japanese also has a special **suffering passive** (迷惑の受身), where the subject is negatively affected by something, even if it's not a direct object of the action. This has no direct English equivalent.
+## worden + participle: present and simple past
 
-## Formation
+| | singular | plural |
+| --- | --- | --- |
+| present | wordt | worden |
+| simple past | werd | werden |
 
-| Group | Rule | Example |
-| ----- | ---- | ------- |
-| Godan | change u-sound to a-sound + れる | 書く → 書かれる, 読む → 読まれる, 言う → 言われる (う → わ) |
-| Ichidan | drop る + られる | 食べる → 食べられる, 見る → 見られる |
-| する | される | 招待する → 招待される |
-| 来る | 来られる (こられる) | |
+The participle goes to the end.
 
-The passive is an **ichidan verb**: 書かれます, 書かれた, 書かれない.
+- Hier wordt Nederlands gesproken. — Dutch is spoken here.
+- De ramen worden elke week schoongemaakt. — The windows are cleaned every week.
+- De brief wordt morgen verstuurd. — The letter will be sent tomorrow.
+- Het museum werd in 1885 geopend. — The museum was opened in 1885.
+- De huizen werden na de oorlog gebouwd. — The houses were built after the war.
 
-## Direct passive
+In a subordinate clause, both verbs go to the end, in either order: *omdat de weg wordt gerepareerd* or *omdat de weg gerepareerd wordt*.
 
-**Pattern:** [Receiver] は／が [Doer] に [verb-passive]
+With a modal verb, *worden* becomes an infinitive:
 
-- 私は先生に褒められました。 — I was praised by the teacher.
-- 弟は犬にかまれた。 — My younger brother was bitten by a dog.
-- この本は世界中で読まれている。 — This book is read all over the world.
+- Dit formulier moet worden ingevuld. — This form has to be filled in.
+- Het pakket kan morgen worden bezorgd. — The parcel can be delivered tomorrow.
 
-## Passive of possession
+## zijn + participle: the perfect passive
 
-When something belonging to you is affected, **you** become the subject, and the thing stays with を:
+In the perfect, *worden* disappears and you use *zijn* + participle. In the pluperfect, *was/waren* + participle.
 
-- 電車で財布を盗まれた。 — I had my wallet stolen on the train.
-- 母に日記を読まれた。 — My mother read my diary (and I didn't like it).
+- De brug is in 2010 gebouwd. — The bridge was built in 2010.
+- Mijn fiets is gestolen! — My bike's been stolen!
+- Het probleem is opgelost. — The problem has been solved.
+- De winkel was al gesloten. — The shop had already closed.
 
-Saying 私の財布が盗まれた is possible but sounds less personal.
+You may hear *is gebouwd geworden*, especially in Flanders, but standard Dutch leaves out *geworden*.
 
-## Suffering passive
+Watch the difference between *werd* (an action at a moment) and *was* (a state, or something that had already happened):
 
-Even intransitive verbs can be passive, to show that someone was bothered by an event:
+- De deur werd om tien uur gesloten. — The door was closed at ten. (someone closed it then)
+- De deur was gesloten. — The door was closed. (it was shut)
 
-- 雨に降られて、びしょびしょになった。 — I got caught in the rain and got soaked.
-- 夜中に赤ちゃんに泣かれて、眠れなかった。 — The baby cried in the night, and I couldn't sleep.
-- 友達に来られて、勉強できなかった。 — My friend came over, and I couldn't study.
+## door: who did it
 
-## に, によって, から
+If you want to say who did it, use *door* ("by"), not *van* or *bij*.
 
-- **に**: the usual "by".
-- **によって**: for creators, discoverers and formal writing: この絵はピカソによって描かれた (This was painted by Picasso).
-- **から**: sometimes with verbs of communication: 先生から注意された (I was warned by the teacher).
+- De Nachtwacht is door Rembrandt geschilderd. — The Night Watch was painted by Rembrandt.
+- Het besluit werd door de gemeente genomen. — The decision was taken by the council.
+- Ik ben door een hond gebeten. — I've been bitten by a dog.
 
-## Respect
+Most passive sentences don't mention the agent at all; that's often the reason to use the passive.
 
-The passive form is also used as a mild **honorific**: 先生はもう帰られました (The teacher has gone home). See [Sonkeigo](#/grammar/keigo-sonkeigo).
+## The impersonal passive with er
 
-## Pitfalls
+Dutch can make a passive with **no subject at all**, just to say that an activity is going on. *Er* fills the first place. English needs a different construction: "people are …", "there's …ing".
 
-- Ichidan passive and potential look the same: 食べられる = "can eat" or "be eaten". Context decides.
-- Japanese uses the passive less than English for neutral facts, but more for unpleasant experiences.
-- Don't use the passive for something good done for you; use てもらう: 友達に手伝ってもらった, not 手伝われた.
+- Er wordt gelachen. — People are laughing.
+- Er werd de hele nacht gedanst. — There was dancing all night.
+- Er wordt hier niet gerookt. — There's no smoking here.
+- Op zondag wordt er niet gewerkt. — People don't work on Sundays.
+- Er wordt veel over gepraat. — People are talking about it a lot.
 
-See also: [Causative](#/grammar/causative), [Causative-passive](#/grammar/causative-passive), [Potential form](#/grammar/potential), [Giving and receiving](#/grammar/giving-receiving), [Particle に](#/grammar/particle-ni)
+*Er* is also used when the subject is indefinite:
+
+- Er wordt een nieuw ziekenhuis gebouwd. — A new hospital is being built.
+- Er worden in Amsterdam veel fietsen gestolen. — Lots of bikes get stolen in Amsterdam.
+
+## Alternatives: je, ze, men
+
+In everyday speech, Dutch often avoids the passive with *je* (you), *ze* (they) or the formal *men* (one).
+
+- Ze hebben mijn fiets gestolen. — Someone's stolen my bike.
+- Je mag hier niet parkeren. — You're not allowed to park here.
+
+## Common mistakes
+
+Using *zijn* for the present passive: *Het huis is gebouwd* means "has been built", not "is being built". For an ongoing action, use *wordt*. The other way round, in the perfect, don't use *worden*: not *Het is geworden gebouwd* but *Het is gebouwd*. And remember that English "was" + participle can be *werd* (action) or *was* / *is* (state or completed fact), depending on the meaning.

@@ -1,61 +1,101 @@
 ---
-title: Imperative (commands)
-title_jp: 命令形
-jlpt: N4
-order: 570
-summary: Blunt commands like 行け and 食べろ, the prohibitive な, and softer なさい.
+title: Imperative
+title_nl: Gebiedende wijs
+cefr: A2
+order: 58
+summary: "Kom! Kom maar binnen. Komt u binnen. Niet roken."
 ---
 
-The **imperative form** gives a direct command: "Go!", "Eat!". It is very blunt. In everyday life you mostly hear it in sports, emergencies, signs, song lyrics, manga, from bosses in rough workplaces, and in reported speech. Learners rarely need to use it, but you will meet it often in reading.
+The imperative (*gebiedende wijs*) is used for orders, requests, advice and instructions. It's easy to form, but getting the tone right takes a few little words.
 
-## Formation
+## The form: just the stem
 
-| Group | Rule | Example |
-| ----- | ---- | ------- |
-| Godan | change u-sound to e-sound | 行く → 行け, 飲む → 飲め, 待つ → 待て, 帰る → 帰れ |
-| Ichidan | drop る + ろ | 食べる → 食べろ, 見る → 見ろ, 起きる → 起きろ |
-| する | しろ (written: せよ) | 勉強しろ |
-| 来る | 来い (こい) | |
-| くれる | くれ | 貸してくれ |
+The imperative is the stem of the verb, the same as the *ik*-form: *komen → kom*, *luisteren → luister*, *wachten → wacht*, *doen → doe*, *gaan → ga*. It's the same whether you talk to one person or to several, and it comes first in the sentence.
 
-## Negative imperative: な
+- Kom hier! — Come here!
+- Luister! — Listen!
+- Doe de deur dicht. — Close the door.
+- Ga zitten. — Sit down.
+- Bel me morgen op. — Call me tomorrow.
+- Kijk uit! — Watch out!
 
-**Dictionary form + な** means "Don't!": 行くな (Don't go!), 触るな (Don't touch!), 忘れるな (Don't forget!).
+With separable verbs, the prefix goes to the end, as in *Bel me morgen op*.
 
-## Examples
+Two verbs are special: *zijn* becomes **wees**, and *hebben* becomes **heb**.
 
-- 早く起きろ！遅刻するぞ。 — Get up! You'll be late.
-- 止まれ。 — Stop. (on road signs)
-- 危ない！逃げろ！ — Look out! Run!
-- ここに来い。 — Come here.
-- 頑張れ！ — Go for it! / Hang in there!
-- 芝生に入るな。 — Keep off the grass.
-- 宿題を早くやりなさい。 — Do your homework right away.
+- Wees voorzichtig! — Be careful!
+- Heb geduld. — Be patient.
 
-## なさい: the parental command
+Don't forget the spelling of stems ending in *d*: *snijden → snijd*, *worden → word*.
 
-**Masu-stem + なさい** is a firm but not rude command, typical of parents and teachers speaking to children, and of exam instructions: 早く寝なさい (Go to bed now), 次の質問に答えなさい (Answer the following questions). It sounds strict and "from above", so don't use it to adults as an equal.
+- Snijd de uien fijn. — Chop the onions finely.
 
-## Levels of directness
+## Negative imperatives
 
-| Form | Example | Feel |
-| ---- | ------- | ---- |
-| Imperative | 待て | blunt, rough |
-| なさい | 待ちなさい | parental, strict |
-| て (casual) | 待って | casual request |
-| てください | 待ってください | polite request or instruction |
-| お〜ください | お待ちください | honorific, customer service |
+Put *niet* or *geen* where it would go in a normal sentence, usually after the verb and the object.
 
-## Where you'll see it
+- Vergeet je sleutels niet. — Don't forget your keys.
+- Wees niet bang. — Don't be afraid.
+- Maak je geen zorgen. — Don't worry.
 
-- **Cheering:** 頑張れ！ (Go for it!) is friendly and encouraging, not rude.
-- **Signs:** 止まれ (stop), 押すな (don't push).
-- **Reported speech:** 先生に早く来いと言われた (I was told by my teacher to come early). Here the imperative is just quoting the command, so it sounds neutral.
+## Softening: maar, even, eens
 
-## Pitfalls
+A bare imperative can sound blunt. Dutch speakers add small words to make it friendlier. *Alsjeblieft* helps too, but these little words matter more.
 
-- Using the imperative to a stranger or superior is very rude.
-- The prohibitive な (行くな) is different from the sentence-ending な (いいな, "how nice"). The prohibitive comes right after the dictionary form, with falling, firm intonation.
-- 来い is irregular; 来ろ is wrong.
+**maar**: permission or encouragement, "go ahead", "feel free".
 
-See also: [Te-kudasai](#/grammar/te-kudasai), [Te wa ikenai](#/grammar/te-wa-ikenai), [Sentence-ending particles](#/grammar/sentence-ending-particles), [Volitional form](#/grammar/volitional)
+- Kom maar binnen. — Come on in.
+- Ga maar zitten. — Do sit down.
+- Zeg het maar. — Go ahead. / What can I get you?
+- Zeg maar jij. — You can call me *jij*.
+
+You'll hear *Zeg het maar* in every shop and café. *Zeg maar jij* is what people say when they want you to stop using the polite *u*.
+
+**even**: "just", "for a moment"; makes the request sound small and quick.
+
+- Wacht even. — Hang on a moment.
+- Kijk even of de deur op slot is. — Just check whether the door is locked.
+- Geef me even het zout, alsjeblieft. — Could you pass me the salt, please?
+
+**eens**: "why don't you…", often an invitation or a suggestion. In speech it often sounds like *'ns*.
+
+- Kijk eens! — Look!
+- Probeer het eens. — Give it a try.
+- Kom eens langs. — Drop by some time.
+
+They can be combined: *Kom eens even hier.* For more about these words, see the article on little words like *even, maar, toch*.
+
+## The polite form: stem + t + u
+
+In formal situations, with strangers in a service setting, or with older people, use the *u*-form of the verb, followed by *u*. It looks like a question, but it isn't one.
+
+- Komt u binnen. — Please come in.
+- Neemt u plaats. — Please take a seat.
+- Komt u maar mee. — Please come with me.
+
+Often a polite question works just as well, or better:
+
+- Wilt u hier even tekenen? — Would you sign here, please?
+- Kunt u de deur dichtdoen? — Could you close the door?
+
+## "Let's"
+
+For "let's", Dutch uses *laten we* + infinitive, or, more casually, *kom, we gaan*.
+
+- Laten we iets gaan drinken. — Let's go for a drink.
+- Kom, we gaan. — Come on, let's go.
+
+## The infinitive as an instruction
+
+On signs, in instructions and sometimes when talking to children or dogs, Dutch uses the infinitive. It's impersonal and short.
+
+- Niet roken. — No smoking.
+- Niet storen. — Do not disturb.
+- Opletten! — Pay attention!
+- Rechts houden. — Keep right.
+
+On doors you'll see *duwen* (push) and *trekken* (pull). Recipes use either the infinitive or the imperative.
+
+## Common mistakes
+
+Don't add *-t* in the informal imperative: *Komt hier!* is old-fashioned or wrong; say *Kom hier!* The *-t* is only for the form with *u*. Don't say *Ben voorzichtig*; use *Wees voorzichtig*. And if a request sounds harsh, try adding *even* or *maar* rather than another *alsjeblieft*.

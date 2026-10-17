@@ -1,32 +1,25 @@
 // Builds the reading library from content/ into public/data/library/:
 //   index.json                 list of stories, series + grammar articles
-//   stories/<id>.json          pre-tokenized story (StoryDoc)
+//   stories/<id>.json          pre-analyzed story (StoryDoc)
 //   grammar/<id>.json          grammar article (rendered HTML)
-// Also copies the kuromoji dictionary to public/kuromoji/ for in-browser
-// tokenizing of imported texts.
 
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
-import { dirname, join, basename, relative, sep } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { join, basename, relative, sep } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { parse as parseYaml } from 'yaml'
 import { marked } from 'marked'
-import * as kuromoji from '@patdx/kuromoji'
-import NodeDictionaryLoader from '@patdx/kuromoji/node'
-import { analyzeChapters, allWords, lemmaKey, type Tokenizer } from '../src/lib/analyze'
+import { analyzeChapters, allWords, lemmaKey } from '../src/lib/analyze'
 import { textStats } from '../src/lib/stats'
 import { parseStoryBody, parseTerms, splitFrontMatter } from '../src/lib/text'
-import { Dictionary, headword } from '../src/lib/dict'
-import { LEVELS, levelJlpt } from '../src/lib/levels'
-import type { GrammarMeta, Keyword, KToken, LibraryIndex, SeriesMeta, StoryDoc, StoryMeta, Word } from '../src/lib/types'
+import { LEVELS, levelCefr } from '../src/lib/levels'
+import { withArticle } from '../src/lib/gloss'
+import type { Lexicon } from '../src/lib/lexicon'
+import type { GrammarMeta, Keyword, LibraryIndex, SeriesMeta, StoryDoc, StoryMeta, Word } from '../src/lib/types'
+import { EMPTY_LEXICON, loadLexicon, ROOT } from './load-lexicon'
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const CONTENT = join(ROOT, 'content')
 const STORIES = join(CONTENT, 'stories')
 const OUT = join(ROOT, 'public', 'data', 'library')
-const DICT = join(ROOT, 'public', 'data', 'dict')
-const KUROMOJI_SRC = join(ROOT, 'node_modules', '@patdx', 'kuromoji', 'dict')
-const KUROMOJI_OUT = join(ROOT, 'public', 'kuromoji')
 
 function walk(dir: string): string[] {
   if (!existsSync(dir)) return []
@@ -51,14 +44,9 @@ function gitAddedDate(file: string): string | undefined {
 }
 
 async function main() {
-  const tk = await new kuromoji.TokenizerBuilder({
-    loader: new NodeDictionaryLoader({ dic_path: KUROMOJI_SRC } as never),
-  }).build()
-  const tokenizer: Tokenizer = { tokenize: (t) => tk.tokenize(t) as unknown as KToken[] }
-
-  const hasDict = existsSync(join(DICT, 'meta.json'))
-  if (!hasDict) console.warn('! dictionary not built (run `npm run data`); skipping pitch accent / JLPT / keywords')
-  const dict = hasDict ? new Dictionary(async (p) => JSON.parse(readFileSync(join(DICT, p), 'utf8'))) : null
+  const loaded = loadLexicon()
+  if (!loaded) console.warn('! dictionary not built (run `npm run data`); stories get no dictionary forms, levels or keywords')
+  const lex = loaded ?? EMPTY_LEXICON
 
   if (existsSync(OUT)) rmSync(OUT, { recursive: true })
   mkdirSync(join(OUT, 'stories'), { recursive: true })
@@ -127,6 +115,7 @@ async function main() {
     }
     const level = String(fm.level ?? levelDir)
     if (!LEVELS.some((l) => l.id === level)) errors.push(`${rel}: unknown level "${level}"`)
+    if (level !== levelDir) errors.push(`${rel}: level "${level}" doesn't match its folder "${levelDir}"`)
     if (inSeries && level !== inSeries.level) errors.push(`${rel}: every episode of a series is at the series' level (${inSeries.level})`)
     if (!fm.title) errors.push(`${rel}: missing title`)
 
@@ -137,10 +126,8 @@ async function main() {
       errors.push(`${rel}: ${(err as Error).message}`)
       continue
     }
-    const chapters = analyzeChapters(tokenizer, parseStoryBody(body), terms)
+    const chapters = analyzeChapters(lex, parseStoryBody(body), terms)
     const words = allWords(chapters)
-    if (dict) await dict.annotate(words)
-
     const stats = textStats(chapters)
 
     const meta: StoryMeta = {
@@ -160,7 +147,7 @@ async function main() {
       ...(inSeries && ep ? { series: ep.series, episode: ep.episode } : {}),
     }
 
-    const keywords = await buildKeywords(tokenizer, fm.keywords, words, level, dict)
+    const keywords = buildKeywords(lex, fm.keywords, words, level)
     const doc: StoryDoc = { meta, keywords, chapters }
     writeFileSync(join(OUT, 'stories', `${id}.json`), JSON.stringify(doc))
     stories.push(meta)
@@ -180,8 +167,8 @@ async function main() {
     const meta: GrammarMeta = {
       id,
       title: String(fm.title ?? id),
-      ...(fm.title_jp ? { title_jp: String(fm.title_jp) } : {}),
-      ...(fm.jlpt ? { jlpt: String(fm.jlpt) } : {}),
+      ...(fm.title_nl ? { title_nl: String(fm.title_nl) } : {}),
+      ...(fm.cefr ? { cefr: String(fm.cefr) } : {}),
       ...(fm.order != null ? { order: Number(fm.order) } : {}),
       ...(fm.summary ? { summary: String(fm.summary) } : {}),
     }
@@ -194,12 +181,12 @@ async function main() {
   const levelOrder = (l: string) => LEVELS.findIndex((x) => x.id === l)
   // episodes of a series stay together and in order, at the place of the first episode
   const firstEp = new Map<string, number>()
-  for (const s of stories) if (s.series && s.episode === 1) firstEp.set(s.series, s.chars)
-  const sortChars = (s: StoryMeta) => (s.series ? (firstEp.get(s.series) ?? s.chars) : s.chars)
+  for (const s of stories) if (s.series && s.episode === 1) firstEp.set(s.series, s.words)
+  const sortWords = (s: StoryMeta) => (s.series ? (firstEp.get(s.series) ?? s.words) : s.words)
   stories.sort(
     (a, b) =>
       levelOrder(a.level) - levelOrder(b.level) ||
-      sortChars(a) - sortChars(b) ||
+      sortWords(a) - sortWords(b) ||
       (a.series ?? '').localeCompare(b.series ?? '') ||
       (a.episode ?? 0) - (b.episode ?? 0),
   )
@@ -220,7 +207,7 @@ async function main() {
       ...(fm.summary ? { summary: String(fm.summary) } : {}),
       ...(fm.author ? { author: String(fm.author) } : {}),
       episodes: found.map((s) => s.id),
-      chars: found.reduce((a, s) => a + s.chars, 0),
+      words: found.reduce((a, s) => a + s.words, 0),
       added: found.map((s) => s.added ?? '').sort().pop(),
     })
   }
@@ -229,10 +216,6 @@ async function main() {
   const index: LibraryIndex = { built: new Date().toISOString(), stories, series, grammar }
   writeFileSync(join(OUT, 'index.json'), JSON.stringify(index))
 
-  // ---- kuromoji dictionary for the browser
-  mkdirSync(KUROMOJI_OUT, { recursive: true })
-  for (const f of readdirSync(KUROMOJI_SRC)) copyFileSync(join(KUROMOJI_SRC, f), join(KUROMOJI_OUT, f))
-
   console.log(`library: ${stories.length} stories, ${series.length} series, ${grammar.length} grammar articles → ${relative(ROOT, OUT)}`)
   if (errors.length) {
     console.error(errors.map((e) => `✗ ${e}`).join('\n'))
@@ -240,68 +223,49 @@ async function main() {
   }
 }
 
-async function buildKeywords(
-  tokenizer: Tokenizer,
-  given: unknown,
-  words: Word[],
-  level: string,
-  dict: Dictionary | null,
-): Promise<Keyword[]> {
+/** The level of a keyword as written in the front matter ("de fiets", "opbellen"). */
+function keywordLevel(lex: Lexicon, w: string): number | undefined {
+  const bare = w.replace(/^(de|het|de\/het)\s+/i, '').replace(/^zich\s+/i, '').trim()
+  for (const [id] of lex.forms(bare)) {
+    const l = lex.lemma(id)?.l
+    if (l) return l
+  }
+  return undefined
+}
+
+function buildKeywords(lex: Lexicon, given: unknown, words: Word[], level: string): Keyword[] {
   if (Array.isArray(given) && given.length) {
     const out: Keyword[] = []
     for (const item of given) {
-      const [w, r, m] = String(item).split('|').map((s) => s.trim())
+      const [w, ...rest] = String(item).split('|').map((s) => s.trim())
       if (!w) continue
-      const kw: Keyword = { w, r: r ?? '', m: m ?? '' }
-      if (dict) {
-        // keywords may be given conjugated (寝ます, ていねいに): fall back to the lemma
-        const [head, ...rest] = tokenizer.tokenize(w)
-        const inflected = rest.every((t, i) => t.pos === '助動詞' || (t.surface_form === 'に' && i === rest.length - 1))
-        const lemma = inflected ? head?.basic_form : undefined
-        const hit =
-          (await dict.bestEntry({ s: w, r: r || undefined })) ??
-          (lemma && lemma !== '*' && lemma !== w ? await dict.bestEntry({ s: lemma }) : undefined)
-        if (hit?.entry.j) kw.j = hit.entry.j
-        if (!kw.m && hit) kw.m = hit.entry.s[0].g.slice(0, 3).join('; ')
-        if (!kw.r && hit) kw.r = hit.reading.t
+      const kw: Keyword = { w, m: rest.join('|') }
+      const l = keywordLevel(lex, w)
+      if (l) kw.l = l
+      if (!kw.m) {
+        const hit = lex.forms(w.replace(/^(de|het)\s+/, ''))[0]
+        kw.m = (hit && lex.lemma(hit[0])?.h) || ''
       }
       out.push(kw)
     }
     return out
   }
-  if (!dict) return []
-  // Automatic: the hardest content words, weighted by how often they appear.
-  const target = levelJlpt(level)
+  // Automatic: content words above the level, weighted by how often they appear.
+  const target = levelCefr(level)
   const counts = new Map<string, { w: Word; n: number }>()
   for (const w of words) {
-    if (!['n', 'v', 'a', 'na', 'adv'].includes(w.p) || !w.e) continue
+    if (!['n', 'v', 'adj', 'adv'].includes(w.p) || !w.e || !w.l || w.m) continue
     const k = lemmaKey(w)
     const c = counts.get(k)
     if (c) c.n++
     else counts.set(k, { w, n: 1 })
   }
-  const scored: { w: Word; score: number; entry: NonNullable<Awaited<ReturnType<Dictionary['bestEntry']>>> }[] = []
-  for (const { w, n } of counts.values()) {
-    const hit = await dict.bestEntry(w)
-    if (!hit) continue
-    const j = hit.entry.j ?? 0
-    // Words outside the JLPT lists are usually rarer — unless they are very frequent (時, すぐ…)
-    const frequent = (hit.entry.q ?? 100) <= 24
-    const hardness = j === 0 ? (frequent ? 0 : 2.5) : j < target ? target - j + 1 : 0
-    if (hardness > 0) scored.push({ w, score: hardness * (1 + Math.log2(n)), entry: hit })
-  }
-  scored.sort((a, b) => b.score - a.score)
-  const out: Keyword[] = []
-  for (const { w, entry: hit } of scored.slice(0, 8)) {
-    const hw = headword(hit.entry)
-    out.push({
-      w: w.b ?? w.s,
-      r: hit.reading.t !== (w.b ?? w.s) ? hit.reading.t : hw.reading,
-      m: hit.entry.s[0].g.slice(0, 3).join('; '),
-      ...(hit.entry.j ? { j: hit.entry.j } : {}),
-    })
-  }
-  return out
+  return [...counts.values()]
+    .filter(({ w }) => w.l! > target)
+    .map(({ w, n }) => ({ w, score: (w.l! - target) * (1 + Math.log2(n)) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8)
+    .map(({ w }) => ({ w: withArticle(w), m: w.h ?? '', l: w.l }))
 }
 
 main().catch((err) => {

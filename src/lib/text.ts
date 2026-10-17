@@ -16,8 +16,8 @@ export interface RawChapter {
 
 /**
  * Story-specific words from the front matter: `names:` (proper nouns) and
- * `glosses:` (sound words and other words the dictionary gets wrong). Each item
- * is `word|reading|meaning`, or `word|meaning` for a word in kana.
+ * `glosses:` (words the dictionary gets wrong in this story). Each item is
+ * `word|meaning`.
  */
 export function parseTerms(fm: Record<string, unknown>): Term[] {
   const out: Term[] = []
@@ -26,23 +26,15 @@ export function parseTerms(fm: Record<string, unknown>): Term[] {
     if (!Array.isArray(list)) continue
     for (const item of list) {
       const parts = String(item).split('|').map((x) => x.trim())
-      const [s, r, m] = parts.length >= 3 ? parts : [parts[0], '', parts[1]]
-      if (!s || !m) throw new Error(`malformed ${field} item "${item}" (expected word|reading|meaning)`)
-      out.push({ s, ...(r ? { r } : {}), m, ...(name ? { name } : {}) })
+      const [s, m] = [parts[0], parts.slice(1).join('|')]
+      if (!s || !m) throw new Error(`malformed ${field} item "${item}" (expected word|meaning)`)
+      out.push({ s, m, ...(name ? { name } : {}) })
     }
   }
   return out
 }
 
-export interface Hint {
-  start: number
-  end: number
-  reading: string
-}
-
-/**
- * Split `---` YAML front matter from a Markdown document.
- */
+/** Split `---` YAML front matter from a Markdown document. */
 export function splitFrontMatter(md: string): { front: string; body: string } {
   const m = /^﻿?---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(md)
   if (!m) return { front: '', body: md }
@@ -85,29 +77,29 @@ export function parseStoryBody(body: string): RawChapter[] {
   return chapters.filter((c) => c.p.length || c.title)
 }
 
-const OPEN = '「『（(［【〈《“'
-const CLOSE = '」』）)］】〉》”'
-const ENDERS = '。！？!?．'
+/** Abbreviations whose full stop doesn't end a sentence. */
+const ABBREVIATIONS = new Set([
+  'dhr', 'mevr', 'mr', 'mw', 'dr', 'drs', 'ir', 'ing', 'prof', 'st', 'bijv', 'bv', 'enz', 'etc', 'o.a', 'm.a.w', 'd.w.z', 'i.p.v', 'z.g.a.n',
+  'ca', 'nr', 'blz', 'jl', 'vs', 'resp', 'evt', 'incl', 'excl', 'max', 'min', 'tel', 'jr', 'sr', 'mln', 'mld', 'ong', 'zgn', 'vgl', 'pag',
+  'no', 'jan', 'feb', 'mrt', 'apr', 'aug', 'sep', 'sept', 'okt', 'nov', 'dec', 'n.chr', 'v.chr', 'a.s', 'p.s', 't.a.v', 'z.s.m',
+])
 
-/** Split a run of Japanese text into sentences, keeping quotes together. */
+/** Split a run of text into sentences, keeping quotes and abbreviations together. */
 export function splitSentences(text: string): string[] {
   const out: string[] = []
+  const re = /[^.!?…]+(?:[.!?…]+["'”’)\]]*|$)/g
   let cur = ''
-  let depth = 0
-  const chars = Array.from(text)
-  for (let i = 0; i < chars.length; i++) {
-    const ch = chars[i]
-    cur += ch
-    if (OPEN.includes(ch)) depth++
-    else if (CLOSE.includes(ch)) depth = Math.max(0, depth - 1)
-    if (depth === 0 && (ENDERS.includes(ch) || (CLOSE.includes(ch) && ch !== '）' && ch !== ')'))) {
-      // absorb trailing enders/closers (！？」 etc.)
-      while (i + 1 < chars.length && (ENDERS.includes(chars[i + 1]) || CLOSE.includes(chars[i + 1]))) {
-        cur += chars[++i]
-      }
-      // a closing quote followed by と/って continues the sentence
-      if (CLOSE.includes(ch) && i + 1 < chars.length && /[とっ]/.test(chars[i + 1])) continue
-      if (cur.trim()) out.push(cur.trim())
+  for (const m of text.matchAll(re)) {
+    const part = m[0]
+    if (!part.trim()) continue
+    cur += part
+    const t = cur.trimEnd()
+    // "dhr. Jansen", "bijv. een", "3.5", initials ("J. Cruijff")
+    const lastWord = /([\p{L}.]+)\.$/u.exec(t)?.[1]?.toLowerCase()
+    const abbrev = !!lastWord && (ABBREVIATIONS.has(lastWord) || /^\p{L}$/u.test(lastWord))
+    const nextStartsLower = /^\s*[\p{Ll}\d]/u.test(text.slice((m.index ?? 0) + part.length))
+    if (/[.!?…]["'”’)\]]*$/.test(t) && !abbrev && !(t.endsWith('…') && nextStartsLower)) {
+      out.push(cur.trim())
       cur = ''
     }
   }
@@ -120,18 +112,18 @@ export function parsePlainText(text: string): RawChapter[] {
   const paragraphs: RawParagraph[] = []
   const blocks = text.replace(/\r\n?/g, '\n').split(/\n\s*\n/)
   for (const block of blocks) {
-    // Within a block, a line that starts with an indent (full-width space) or
-    // a quote begins a new paragraph — common in Japanese prose.
+    // single line breaks inside a block: a new paragraph when the line is indented or
+    // starts dialogue, otherwise just wrapped text
     const lines = block.split('\n').map((l) => l.replace(/\s+$/, '')).filter((l) => l.trim())
     let cur: string[] = []
     const flush = () => {
       if (!cur.length) return
-      const sentences = splitSentences(cur.join(''))
+      const sentences = splitSentences(cur.join(' '))
       if (sentences.length) paragraphs.push({ s: sentences.map((t) => ({ text: t })) })
       cur = []
     }
     for (const line of lines) {
-      if (/^[　\s]/.test(line) || /^[「『]/.test(line.trim())) flush()
+      if (/^\s{2,}|\t/.test(line) || /^["“'‘–—-]\s?/.test(line.trim())) flush()
       cur.push(line.trim())
     }
     flush()
@@ -139,25 +131,11 @@ export function parsePlainText(text: string): RawChapter[] {
   return [{ p: paragraphs }]
 }
 
-/**
- * Extract Aozora-style ruby: `｜朱鷺《とき》` or `朱鷺《とき》`.
- * Returns the plain text plus reading hints by character offset.
- */
-export function extractRuby(text: string): { plain: string; hints: Hint[] } {
-  const hints: Hint[] = []
-  let plain = ''
-  const re = /｜([^《｜]+)《([^》]+)》|((?:[㐀-䶿一-鿿豈-﫿々〆ヶ]|[\ud840-\ud87f][\udc00-\udfff])+)《([^》]+)》/g
-  let last = 0
-  for (let m = re.exec(text); m; m = re.exec(text)) {
-    plain += text.slice(last, m.index)
-    const base = m[1] ?? m[3]
-    const reading = m[2] ?? m[4]
-    hints.push({ start: plain.length, end: plain.length + base.length, reading })
-    plain += base
-    last = m.index + m[0].length
-  }
-  plain += text.slice(last)
-  // stray markers
-  plain = plain.replace(/[｜]/g, '')
-  return { plain, hints }
+/** Does this look like Dutch? A cheap check before analyzing pasted text. */
+export function looksDutch(text: string): boolean {
+  const words = text.toLowerCase().match(/\p{L}+/gu) ?? []
+  if (words.length < 2) return words.length === 1
+  const common = new Set('de het een en van is in dat op te ik je niet zijn met voor er die hij ze we wat maar als aan bij ook nog naar om was dan of wel heb heeft hebben uit door zo al'.split(' '))
+  const hits = words.filter((w) => common.has(w)).length
+  return hits / words.length > 0.08
 }

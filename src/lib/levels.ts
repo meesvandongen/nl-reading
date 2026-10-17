@@ -2,26 +2,41 @@ export interface LevelInfo {
   id: string
   label: string
   short: string
-  jlpt: number
+  /** CEFR level of the vocabulary, 1 = A1 … 6 = C2 */
+  cefr: number
   color: string
+  /** reading speed for time estimates, words per minute */
+  wpm: number
 }
 
 export const LEVELS: LevelInfo[] = [
-  { id: 'beginner-1', label: 'Beginner 1', short: 'B1', jlpt: 5, color: '#4caf50' },
-  { id: 'beginner-2', label: 'Beginner 2', short: 'B2', jlpt: 5, color: '#43a047' },
-  { id: 'beginner-3', label: 'Beginner 3', short: 'B3', jlpt: 5, color: '#2e7d32' },
-  { id: 'elementary', label: 'Elementary', short: 'EL', jlpt: 4, color: '#1e88e5' },
-  { id: 'intermediate', label: 'Intermediate', short: 'IN', jlpt: 3, color: '#8e24aa' },
-  { id: 'advanced', label: 'Advanced', short: 'AD', jlpt: 2, color: '#e65100' },
-  { id: 'master', label: 'Master', short: 'MA', jlpt: 1, color: '#c62828' },
+  { id: 'a1', label: 'A1', short: 'A1', cefr: 1, color: '#2e9d4f', wpm: 60 },
+  { id: 'a2', label: 'A2', short: 'A2', cefr: 2, color: '#1f8a8a', wpm: 80 },
+  { id: 'b1', label: 'B1', short: 'B1', cefr: 3, color: '#2f6fd1', wpm: 100 },
+  { id: 'b2', label: 'B2', short: 'B2', cefr: 4, color: '#7b4fc4', wpm: 120 },
+  { id: 'c1', label: 'C1', short: 'C1', cefr: 5, color: '#d0582a', wpm: 150 },
+  { id: 'classics', label: 'Classics', short: 'CL', cefr: 6, color: '#b2262f', wpm: 150 },
 ]
 
-export function levelInfo(id: string): LevelInfo {
-  return LEVELS.find((l) => l.id === id) ?? { id, label: id === 'custom' ? 'My text' : id, short: '•', jlpt: 0, color: '#757575' }
+export const LEVEL_HINTS: Record<string, string> = {
+  a1: 'Beginner',
+  a2: 'Elementary',
+  b1: 'Intermediate',
+  b2: 'Upper intermediate',
+  c1: 'Advanced',
+  classics: 'Literature in the original',
 }
 
-export function levelJlpt(id: string): number {
-  return levelInfo(id).jlpt || 1
+export function levelInfo(id: string): LevelInfo {
+  return LEVELS.find((l) => l.id === id) ?? { id, label: id === 'custom' ? 'My text' : id, short: '•', cefr: 0, color: '#757575', wpm: 100 }
+}
+
+export function levelCefr(id: string): number {
+  return levelInfo(id).cefr || 6
+}
+
+export function readingMinutes(words: number, level: string): number {
+  return Math.max(1, Math.round(words / levelInfo(level).wpm))
 }
 
 export const CATEGORIES: Record<string, string> = {
@@ -36,6 +51,7 @@ export const CATEGORIES: Record<string, string> = {
   work: 'Work',
   society: 'Society',
   science: 'Science',
+  sport: 'Sport',
   humor: 'Humor',
   literature: 'Literature',
   'news-style': 'News',
@@ -43,10 +59,5 @@ export const CATEGORIES: Record<string, string> = {
   misc: 'Other',
 }
 
-export const JLPT_COLORS: Record<number, string> = {
-  5: 'var(--n5)',
-  4: 'var(--n4)',
-  3: 'var(--n3)',
-  2: 'var(--n2)',
-  1: 'var(--n1)',
-}
+/** CEFR labels of word levels (index 1..6). */
+export const CEFR_NAMES = ['', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2']

@@ -3,74 +3,79 @@
 export type Pos =
   | 'n' // noun
   | 'name' // proper noun
-  | 'pn' // pronoun
+  | 'pron' // pronoun
   | 'num' // number
   | 'v' // verb
-  | 'a' // i-adjective
-  | 'na' // na-adjective
+  | 'adj' // adjective
   | 'adv' // adverb
-  | 'prt' // particle
-  | 'aux' // auxiliary / copula
+  | 'prep' // preposition
   | 'conj' // conjunction
-  | 'int' // interjection
-  | 'adn' // adnominal (この, 大きな)
-  | 'pre' // prefix
-  | 'suf' // suffix
-  | 'sym' // punctuation / symbol
-  | 'x' // other
+  | 'det' // determiner (deze, mijn, elk)
+  | 'art' // article (de, het, een)
+  | 'intj' // interjection
+  | 'prt' // the separated prefix of a separable verb (bel … op)
+  | 'x' // other / unknown
+  | 'sym' // punctuation
 
-/** One part of a grammar breakdown, e.g. "させ" → causative. */
+export type Article = 'de' | 'het' | 'de/het'
+
+/** One line of a word's breakdown, e.g. "past participle" → grammar article. */
 export interface Step {
-  /** surface text of this part */
-  s: string
-  /** dictionary form of this part */
-  b?: string
-  /** short English label, e.g. "causative" */
+  /** short English label, e.g. "past participle" */
   l: string
   /** grammar article id */
   g?: string
 }
 
-/** A tappable word (a group of morphemes, e.g. 食べ+させ+られ+た). */
+/** A tappable word. */
 export interface Word {
-  /** surface */
+  /** surface, as in the text */
   s: string
-  /** reading in hiragana (omitted when equal to the surface) */
-  r?: string
-  /** furigana segments [text, reading?] (only when the surface contains kanji) */
-  f?: [string, string?][]
-  /** dictionary form (lemma) when different from surface */
+  /** whitespace after the word */
+  ws?: string
+  /** dictionary form (lemma) when different from the surface (lowercase) */
   b?: string
-  /** reading of the lemma */
-  br?: string
-  /** part of speech of the head */
+  /** part of speech */
   p: Pos
-  /** grammar breakdown steps (only when there is something to explain) */
-  g?: Step[]
-  /** grammar article ids referenced by this word */
-  t?: string[]
-  /** pitch accent (downstep position(s), e.g. "0" or "1,0") */
-  a?: string
-  /** JLPT level of the best dictionary match (5 = N5 … 1 = N1) */
-  j?: number
-  /** JMdict entry id of the best match */
+  /** dictionary entry id of the best match */
   e?: number
-  /** conjugation class of the head (v1, v5, vs, vk, adj-i) — helps pick the right dictionary entry */
+  /** form code of the surface (see FORM_LABELS in dictKeys.js), when it is an inflected form */
   c?: string
-  /** pronunciation in hiragana when it differs from the reading (は → わ) */
-  pr?: string
+  /** de/het of a noun (diminutives: het) */
+  a?: Article
+  /** CEFR level of the lemma, 1 = A1 … 6 = C2 (from word frequency) */
+  l?: number
+  /** short meaning, for gloss hints and the sentence breakdown */
+  h?: string
+  /** grammar article ids this word illustrates */
+  t?: string[]
+  /** breakdown of an inflected word: lemma + these steps */
+  f?: Step[]
+  /** index in the sentence of the other part of a separable verb (bel … op) */
+  sp?: number
+  /** the parts of a compound the dictionary doesn't have as one word */
+  cp?: CompoundPart[]
+  /** part of a fixed expression the dictionary has as a whole (ten slotte, in ieder geval) */
+  x?: { b: string; e: number; h?: string }
   /** meaning given by the story (front matter `names:` / `glosses:`); wins over the dictionary */
   m?: string
-  /** a person's name (the tokenizer says so and an honorific like さん follows): common-noun homographs don't apply */
-  ps?: 1
+}
+
+export interface CompoundPart {
+  /** text of the part as it appears in the word (fietsen-) */
+  s: string
+  /** lemma of the part */
+  b: string
+  /** entry id */
+  e?: number
+  /** short meaning */
+  h?: string
 }
 
 /** A story-specific word from the front matter: `names:` (proper nouns) or `glosses:` (other words). */
 export interface Term {
   /** surface as written in the text */
   s: string
-  /** reading in hiragana */
-  r?: string
   /** English meaning */
   m: string
   /** a proper noun */
@@ -93,20 +98,14 @@ export interface Chapter {
 }
 
 export interface Keyword {
+  /** word, nouns with their article ("de fiets") */
   w: string
-  r: string
   m: string
-  j?: number
+  /** CEFR level 1–6 */
+  l?: number
 }
 
-export type Level =
-  | 'beginner-1'
-  | 'beginner-2'
-  | 'beginner-3'
-  | 'elementary'
-  | 'intermediate'
-  | 'advanced'
-  | 'master'
+export type Level = 'a1' | 'a2' | 'b1' | 'b2' | 'c1' | 'classics'
 
 export interface StoryMeta {
   id: string
@@ -120,14 +119,14 @@ export interface StoryMeta {
   license?: string
   source?: string
   year?: number
-  /** number of characters of Japanese text */
-  chars: number
+  /** number of words of Dutch text */
+  words: number
   /** number of sentences */
   sentences: number
   /** whether every sentence has a translation */
   translated: boolean
-  /** distribution of JLPT levels of the words (index 0 = unknown, 1..5 = N1..N5) */
-  jlpt?: number[]
+  /** distribution of CEFR levels of the words (index 0 = unknown, 1..6 = A1..C2) */
+  cefr?: number[]
   /** unique lemmas, used for difficulty / known-word stats */
   lemmas?: number
   /** date added (ISO) */
@@ -138,7 +137,7 @@ export interface StoryMeta {
   episode?: number
 }
 
-/** A series (連載): stories at one level that are read in order and tell one bigger story. */
+/** A series: stories at one level that are read in order and tell one bigger story. */
 export interface SeriesMeta {
   id: string
   title: string
@@ -149,8 +148,8 @@ export interface SeriesMeta {
   author?: string
   /** episode story ids, in reading order */
   episodes: string[]
-  /** total characters of all episodes */
-  chars: number
+  /** total words of all episodes */
+  words: number
   /** date the newest episode was added (ISO) */
   added?: string
 }
@@ -171,26 +170,8 @@ export interface LibraryIndex {
 export interface GrammarMeta {
   id: string
   title: string
-  title_jp?: string
-  jlpt?: string
+  title_nl?: string
+  cefr?: string
   order?: number
   summary?: string
-}
-
-/** Raw kuromoji token (IPADIC). */
-export interface KToken {
-  surface_form: string
-  pos: string
-  pos_detail_1: string
-  pos_detail_2: string
-  pos_detail_3: string
-  conjugated_type: string
-  conjugated_form: string
-  basic_form: string
-  reading?: string
-  pronunciation?: string
-  word_type?: string
-  word_position?: number
-  /** the story term this token was cut for (not from kuromoji) */
-  term?: Term
 }
