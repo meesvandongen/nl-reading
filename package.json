@@ -5,16 +5,17 @@
   "type": "module",
   "description": "Read Dutch with tap-to-look-up dictionary, de/het and verb help, audio, translations and SRS flashcards. A PWA hosted on Cloudflare Workers.",
   "scripts": {
-    "dev": "npm run build:content && vite",
+    "dev": "pnpm run build:content && vp dev",
     "data": "node scripts/build-dict.mjs",
-    "build:content": "tsx scripts/build-content.ts",
-    "audit": "tsx scripts/audit-content.ts",
-    "build": "npm run build:content && tsc --noEmit && vite build",
-    "build:cf": "(git rev-parse --is-shallow-repository | grep -q true && git fetch --unshallow --quiet); npm run data && npm run build",
-    "preview": "vite preview",
+    "build:content": "vpx scripts/build-content.ts",
+    "audit": "vpx scripts/audit-content.ts",
+    "build": "pnpm run build:content && tsc --noEmit && vp build",
+    "build:cf": "(git rev-parse --is-shallow-repository | grep -q true && git fetch --unshallow --quiet); pnpm run data && pnpm run build",
+    "preview": "vp preview",
     "deploy": "wrangler deploy",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "test": "vp test run",
+    "typecheck": "tsc --noEmit",
+    "lint": "vp lint"
   },
   "dependencies": {
     "@preact/signals": "^2.11.3",
@@ -25,13 +26,13 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",
     "@types/node": "^26.6.5",
-    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "vite": "^8.3.4",
+    "vite": "catalog:",
     "vite-plugin-pwa": "^2.0.0",
-    "vitest": "^5.0.4",
+    "vite-plus": "catalog:",
     "workbox-window": "^7.4.1",
     "wrangler": "^4.151.0",
     "yaml": "^2.9.1"
-  }
+  },
+  "packageManager": "pnpm@11.28.8+sha512.f6988a32046b9a3f78d7d7ee0747926bbe905ff9dff73bf19abb87bd7d1906a2ac90d93f73be32b5f9e14c2899569bcb0c9c5ec8a19e083f5d71bbab6dd9e0b8"
 }

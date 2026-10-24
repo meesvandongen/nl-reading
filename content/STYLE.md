@@ -83,9 +83,9 @@ form (the audit checks).
 ## Checking your work
 
 ```sh
-npm run data                                   # once: builds the dictionary
-npx tsx scripts/audit-content.ts <path-part>   # report for matching stories
-npx tsx scripts/show-words.ts "Ik bel je morgen op."   # how a line is analyzed
+pnpm run data                                        # once: builds the dictionary
+pnpm exec vpx scripts/audit-content.ts <path-part>   # report for matching stories
+pnpm exec vpx scripts/show-words.ts "Ik bel je morgen op."   # how a line is analyzed
 ```
 
 A new story should come out of the audit with no ERROR (this includes names

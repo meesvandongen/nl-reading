@@ -1,8 +1,8 @@
-// Analyzer tests against the real dictionary. They need `npm run data` first
+// Analyzer tests against the real dictionary. They need `pnpm run data` first
 // (CI builds the dictionary before running the tests); without it they're skipped.
 
 import { existsSync, readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { analyzeSentence } from '../src/lib/analyze'
 import { parseLexicon } from '../src/lib/lexicon'
 import type { Word } from '../src/lib/types'

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { looksDutch, parsePlainText, parseStoryBody, parseTerms, splitSentences } from '../src/lib/text'
 import { tokenize } from '../src/lib/analyze'
 

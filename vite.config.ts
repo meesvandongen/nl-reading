@@ -1,13 +1,19 @@
-import { defineConfig } from 'vite'
+import { defineConfig, lazyPlugins } from 'vite-plus'
 import preact from '@preact/preset-vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  fmt: { singleQuote: true, semi: false, printWidth: 120 },
+  lint: {
+    jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
+    rules: { 'vite-plus/prefer-vite-plus-imports': 'error' },
+    options: { typeAware: true, typeCheck: true },
+  },
   // Relative base so the site works under any path prefix and on any host.
   base: './',
   worker: { format: 'es' },
   build: { target: 'es2022', chunkSizeWarningLimit: 800 },
-  plugins: [
+  plugins: lazyPlugins(() => [
     preact(),
     VitePWA({
       registerType: 'prompt',
@@ -93,5 +99,5 @@ export default defineConfig({
       },
       devOptions: { enabled: false },
     }),
-  ],
+  ]),
 })
