@@ -45,7 +45,7 @@ function gitAddedDate(file: string): string | undefined {
 
 async function main() {
   const loaded = loadLexicon()
-  if (!loaded) console.warn('! dictionary not built (run `npm run data`); stories get no dictionary forms, levels or keywords')
+  if (!loaded) console.warn('! dictionary not built (run `pnpm run data`); stories get no dictionary forms, levels or keywords')
   const lex = loaded ?? EMPTY_LEXICON
 
   if (existsSync(OUT)) rmSync(OUT, { recursive: true })

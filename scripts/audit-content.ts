@@ -1,5 +1,5 @@
-// Content quality report for content/stories. Run after `npm run data`:
-//   npm run audit -- [filter] [--errors]
+// Content quality report for content/stories. Run after `pnpm run data`:
+//   pnpm run audit -- [filter] [--errors]
 // Prints, per story, problems a reviewer should look at:
 //   - original stories with sentences that have no translation
 //   - lines that look like more than one sentence

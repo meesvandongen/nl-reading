@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { newCard, schedule } from '../src/services/srs'
 
 const card = () => newCard({ id: 'fiets', word: 'fiets', article: 'de', meaning: 'bicycle' })

@@ -93,19 +93,20 @@ series is a folder of them with a `series.yml`. See
 [`content/README.md`](content/README.md) for the format: YAML front matter, one
 sentence per line, `> ` translation lines, `## ` chapters, and a `names:` list
 for proper nouns, and [`content/STYLE.md`](content/STYLE.md) for the house style.
-Check a story with `npm run audit -- <slug>`. Open a pull request. CI validates
+Check a story with `pnpm run audit -- <slug>`. Open a pull request. CI validates
 the files, and the text appears in the app after merge.
 
 ## Development
 
 ```sh
-npm install
-npm run data         # download Wiktionary + frequency data, build the dictionary (~10 s after a ~250 MB download)
-npm run dev          # analyzes content/ into public/data/library, then starts Vite
-npm test
-npm run audit        # content quality report (translations, keywords, names, unknown words, level)
-npx tsx scripts/show-words.ts "Ik bel je morgen op."   # how a sentence is analyzed
-npm run build        # content + typecheck + production build into dist/
+pnpm install
+pnpm run data         # download Wiktionary + frequency data, build the dictionary (~10 s after a ~250 MB download)
+pnpm run dev          # analyzes content/ into public/data/library, then starts Vite (via `vp dev`)
+pnpm test
+pnpm run lint
+pnpm run audit        # content quality report (translations, keywords, names, unknown words, level)
+pnpm exec vpx scripts/show-words.ts "Ik bel je morgen op."   # how a sentence is analyzed
+pnpm run build        # content + typecheck + production build into dist/
 ```
 
 How it works:
@@ -139,17 +140,17 @@ Workers Builds settings (**Workers & Pages → nl-reading → Settings → Build
 
 | Setting | Value |
 | --- | --- |
-| Build command | `npm run build:cf` |
-| Deploy command | `npx wrangler deploy` |
-| Preview command | `npx wrangler preview` (with preview builds enabled for all non-production branches) |
+| Build command | `pnpm run build:cf` |
+| Deploy command | `pnpm exec wrangler deploy` |
+| Preview command | `pnpm exec wrangler preview` (with preview builds enabled for all non-production branches) |
 | Root directory | `/` |
 
-`npm run build:cf` unshallows the clone (stories get their "added" date from
+`pnpm run build:cf` unshallows the clone (stories get their "added" date from
 git history), downloads the dictionary sources and builds into `dist/`.
 `.github/workflows/ci.yml` runs the tests and the build on every push and pull
 request.
 
-To deploy by hand: `npm run data && npm run build && npm run deploy`.
+To deploy by hand: `pnpm run data && pnpm run build && pnpm run deploy`.
 
 ## Credits
 

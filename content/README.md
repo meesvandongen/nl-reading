@@ -1,7 +1,7 @@
 # Content library
 
 Everything under `content/` is plain text that lives in git. The build step
-(`npm run build:content`) turns it into JSON (pre-analyzed: words, dictionary
+(`pnpm run build:content`) turns it into JSON (pre-analyzed: words, dictionary
 forms, de/het, separable verbs, grammar tags and keyword lists) that the app
 loads.
 
@@ -15,7 +15,7 @@ content/
 
 Adding a text is a pull request that adds one Markdown file. No code changes.
 For how to write a good story and translation, see [STYLE.md](STYLE.md).
-`npm run audit -- <slug>` reports missing translations, keywords that aren't in
+`pnpm run audit -- <slug>` reports missing translations, keywords that aren't in
 the text, words the dictionary doesn't know (usually names that need a
 `names:` entry, or typos), and vocabulary far above the level.
 

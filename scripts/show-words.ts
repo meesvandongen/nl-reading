@@ -1,4 +1,4 @@
-// Prints how a line of Dutch is analyzed: npx tsx scripts/show-words.ts "Ik bel je morgen op."
+// Prints how a line of Dutch is analyzed: pnpm exec vpx scripts/show-words.ts "Ik bel je morgen op."
 
 import { analyzeSentence } from '../src/lib/analyze'
 import { loadLexicon } from './load-lexicon'

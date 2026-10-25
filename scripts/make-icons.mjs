@@ -1,5 +1,5 @@
 // Generates the app icons: an open book on Dutch orange, with a Delft-blue bookmark.
-// Usage: npm i --no-save playwright-core && node scripts/make-icons.mjs
+// Usage: pnpm add -D playwright-core && node scripts/make-icons.mjs (then pnpm remove playwright-core)
 // (uses a local Chromium; set CHROME to its path)
 import { readdirSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
