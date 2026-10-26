@@ -40,7 +40,7 @@ jobs:
       - name: Week number
         id: week
         run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: .cache
           key: dict-sources-${{ steps.week.outputs.week }}
